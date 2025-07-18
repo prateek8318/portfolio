@@ -31,6 +31,13 @@ const projects = [
     github: "https://github.com/prateek8318/Tic-Tac-Toe",
     demo: "https://tictactoegame.netlify.app",
   },
+  {
+    name: "Insurance System",
+    description: "Static website using Core php and tailwind CSS and Jquery.",
+    tech: "php, HTML, Tailwind,jquery",
+    github: "https://github.com/prateek8318/insurance",
+    demo: "https://insurance-otnl.onrender.com/",
+  },
 ];
 
 export default function Projects() {

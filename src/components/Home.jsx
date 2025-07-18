@@ -17,9 +17,19 @@ export default function Home() {
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
     >
-      <h1 className="text-4xl md:text-6xl font-bold mb-4">
-        <span className="text-blue-500">Prateek Kumar Pandey</span>
-      </h1>
+     <motion.h1
+  className="text-4xl md:text-6xl font-bold mb-4"
+  initial={{ y: -200, opacity: 0 }}
+  animate={{ y: 0, opacity: 1 }}
+  transition={{
+    type: "spring",
+    stiffness: 100,
+    damping: 10,
+    duration: 0.8,
+  }}
+>
+  <span className="text-blue-500">Prateek Kumar Pandey</span>
+</motion.h1>
       <p className="text-xl text-gray-700 dark:text-gray-300">
         Full Stack Developer | PHP & React Specialist
       </p>
