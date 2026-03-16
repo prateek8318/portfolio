@@ -517,8 +517,8 @@ export default function Home() {
       whileHover={{ scale: 1.05 }}
       transition={{ duration: 0.3 }}
     >
-      <img
-        src="/src/assets/image.png"
+      <img 
+        src="./image.png" 
         alt="Prateek Kumar Pandey"
         className="w-full h-full object-cover object-top"
       />
