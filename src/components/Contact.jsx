@@ -51,7 +51,7 @@ export default function Contact() {
         />
       </motion.div>
 
-      <motion.div className="relative z-10 max-w-6xl mx-auto px-8" style={{ y: contentY }}>
+      <motion.div className="relative z-10 max-w-6xl mx-auto px-4 md:px-8" style={{ y: contentY }}>
         <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: -50 }}
@@ -77,7 +77,7 @@ export default function Contact() {
         </motion.div>
 
         <motion.div 
-          className="grid grid-cols-1 lg:grid-cols-2 gap-12"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12"
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : { opacity: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
@@ -92,7 +92,7 @@ export default function Contact() {
             gyroscope={true}
           >
             <motion.div
-              className="bg-gray-800 rounded-3xl p-8 border border-gray-700 shadow-2xl"
+              className="bg-gray-800 rounded-3xl p-6 md:p-8 border border-gray-700 shadow-2xl"
               initial={{ opacity: 0, x: -50, rotateX: -10 }}
               animate={isInView ? { opacity: 1, x: 0, rotateX: 0 } : { opacity: 0, x: -50, rotateX: -10 }}
               transition={{ duration: 0.8, delay: 0.6 }}
@@ -165,10 +165,10 @@ export default function Contact() {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
-              <h3 className="text-2xl font-bold text-white mb-6">Contact Information</h3>
+            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-lg rounded-3xl p-6 md:p-8 border border-white/20 shadow-2xl">
+              <h3 className="text-xl md:text-2xl font-bold text-white mb-4 md:mb-6">Contact Information</h3>
               
-              <div className="space-y-6">
+              <div className="space-y-4 md:space-y-6">
                 {[
                   { icon: FaEnvelope, label: "Email", value: "prateekpandey2580@gmail.com", href: "mailto:prateekpandey2580@gmail.com", color: "text-blue-400" },
                   { icon: FaPhone, label: "Phone", value: "+91 7388437791", href: "tel:+917388437791", color: "text-green-400" },
@@ -177,20 +177,20 @@ export default function Contact() {
                   <motion.a
                     key={index}
                     href={contact.href}
-                    className="flex items-center space-x-4 group"
-                    whileHover={{ x: 10 }}
+                    className="flex items-center space-x-3 md:space-x-4 group"
+                    whileHover={{ x: 5 }}
                     transition={{ duration: 0.2 }}
                   >
                     <motion.div
-                      className={`w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center ${contact.color}`}
+                      className={`w-10 h-10 md:w-12 md:h-12 bg-white/10 rounded-lg flex items-center justify-center ${contact.color}`}
                       whileHover={{ scale: 1.1, rotate: 360 }}
                       transition={{ duration: 0.6 }}
                     >
-                      <contact.icon className="text-xl" />
+                      <contact.icon className="text-lg md:text-xl" />
                     </motion.div>
-                    <div>
-                      <div className="text-gray-400 text-sm">{contact.label}</div>
-                      <div className="text-white font-medium group-hover:text-blue-400 transition-colors">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-gray-400 text-xs md:text-sm">{contact.label}</div>
+                      <div className="text-white font-medium text-sm md:text-base group-hover:text-blue-400 transition-colors break-words">
                         {contact.value}
                       </div>
                     </div>
@@ -200,9 +200,9 @@ export default function Contact() {
             </div>
 
             {/* Social Links */}
-            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
-              <h3 className="text-2xl font-bold text-white mb-6">Connect With Me</h3>
-              <div className="flex justify-center space-x-6">
+            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-lg rounded-3xl p-6 md:p-8 border border-white/20 shadow-2xl">
+              <h3 className="text-xl md:text-2xl font-bold text-white mb-4 md:mb-6">Connect With Me</h3>
+              <div className="flex justify-center space-x-4 md:space-x-6">
                 {[
                   { icon: FaGithub, href: "https://github.com/prateek8318", color: "hover:text-gray-400" },
                   { icon: FaLinkedin, href: "https://www.linkedin.com/in/prateek-pandey-6087b624b/", color: "hover:text-blue-400" },
@@ -214,7 +214,7 @@ export default function Contact() {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`w-14 h-14 bg-white/10 rounded-full flex items-center justify-center text-2xl text-white border border-white/20 transition-all duration-300 ${social.color}`}
+                    className={`w-12 h-12 md:w-14 md:h-14 bg-white/10 rounded-full flex items-center justify-center text-lg md:text-2xl text-white border border-white/20 transition-all duration-300 ${social.color}`}
                     whileHover={{ scale: 1.2, y: -5 }}
                     whileTap={{ scale: 0.9 }}
                     initial={{ opacity: 0, scale: 0 }}
@@ -242,7 +242,7 @@ export default function Contact() {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ duration: 0.6, delay: 1.4 }}
           >
-            © 2025 Prateek Kumar Pandey. All rights reserved.
+            
           </motion.p>
         </motion.div>
       </motion.div>
