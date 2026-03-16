@@ -9,21 +9,21 @@ export default function Navbar() {
 
   return (
     <motion.nav 
-      className="fixed top-0 w-full z-50 backdrop-blur-xl bg-gradient-to-r from-slate-900/90 via-purple-900/90 to-slate-900/90 border-b border-white/10 shadow-2xl"
+      className="fixed top-0 w-full z-50 backdrop-blur-xl bg-gray-900/90 border-b border-gray-700 shadow-2xl"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
     >
       {/* Animated Navbar Background */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5"></div>
+      <div className="absolute inset-0 bg-gray-800/10"></div>
       <motion.div 
         className="absolute inset-0"
         animate={{
           background: [
-            "linear-gradient(90deg, rgba(59,130,246,0.1) 0%, rgba(147,51,234,0.1) 50%, rgba(236,72,153,0.1) 100%)",
-            "linear-gradient(90deg, rgba(147,51,234,0.1) 0%, rgba(236,72,153,0.1) 50%, rgba(59,130,246,0.1) 100%)",
-            "linear-gradient(90deg, rgba(236,72,153,0.1) 0%, rgba(59,130,246,0.1) 50%, rgba(147,51,234,0.1) 100%)",
-            "linear-gradient(90deg, rgba(59,130,246,0.1) 0%, rgba(147,51,234,0.1) 50%, rgba(236,72,153,0.1) 100%)"
+            "linear-gradient(90deg, rgba(251,146,60,0.1) 0%, rgba(251,146,60,0.1) 50%, rgba(251,146,60,0.1) 100%)",
+            "linear-gradient(90deg, rgba(251,146,60,0.1) 0%, rgba(251,146,60,0.1) 50%, rgba(251,146,60,0.1) 100%)",
+            "linear-gradient(90deg, rgba(251,146,60,0.1) 0%, rgba(251,146,60,0.1) 50%, rgba(251,146,60,0.1) 100%)",
+            "linear-gradient(90deg, rgba(251,146,60,0.1) 0%, rgba(251,146,60,0.1) 50%, rgba(251,146,60,0.1) 100%)"
           ]
         }}
         transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
@@ -44,15 +44,15 @@ export default function Navbar() {
             <motion.img
               src="https://static.vecteezy.com/system/resources/previews/004/697/831/non_2x/the-initial-letter-p-logo-design-modern-and-professional-free-vector.jpg"
               alt="Logo"
-              className="h-12 w-12 rounded-full border-2 border-white/20 shadow-lg"
+              className="h-12 w-12 rounded-full border-2 border-gray-600 shadow-lg"
             />
             <motion.div
-              className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-hover:opacity-30 transition-opacity duration-300"
+              className="absolute inset-0 rounded-full bg-gradient-to-r from-orange-400 to-orange-600 opacity-0 group-hover:opacity-40 transition-opacity duration-300"
             />
           </motion.div>
           <div>
             <motion.h1 
-              className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent"
+              className="text-2xl font-bold text-orange-400"
               whileHover={{ scale: 1.1 }}
             >
               Prateek
@@ -83,13 +83,13 @@ export default function Navbar() {
             >
               {item.charAt(0).toUpperCase() + item.slice(1)}
               <motion.div
-                className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400"
+                className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-orange-400 to-orange-600"
                 initial={{ scaleX: 0 }}
                 whileHover={{ scaleX: 1 }}
                 transition={{ duration: 0.3 }}
               />
               <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                className="absolute inset-0 bg-orange-400/15 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               />
             </motion.a>
           ))}
@@ -98,7 +98,7 @@ export default function Navbar() {
           <motion.div className="flex items-center space-x-3 ml-4">
             <motion.a
               href="#contact"
-              className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 text-sm"
+              className="px-4 py-2 bg-gradient-to-r from-orange-400 to-orange-600 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-orange-400/50 transition-all duration-300 text-sm"
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -132,19 +132,19 @@ export default function Navbar() {
 
         {/* Enhanced Mobile Menu */}
         <motion.div
-          className={`fixed top-0 right-0 h-full w-80 backdrop-blur-2xl bg-gradient-to-br from-slate-900/95 via-purple-900/95 to-slate-900/95 shadow-2xl border-l border-white/20 lg:hidden z-50`}
+          className={`fixed top-0 right-0 h-full w-80 backdrop-blur-2xl bg-gradient-to-br from-indigo-950/95 via-purple-900/95 to-pink-950/95 shadow-2xl border-l border-cyan-400/20 lg:hidden z-50`}
           initial={{ x: "100%" }}
           animate={{ x: menuOpen ? 0 : "100%" }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
         >
           {/* Mobile Menu Header */}
-          <div className="relative p-6 border-b border-white/10">
+          <div className="relative p-6 border-b border-cyan-400/20">
             <div className="flex justify-between items-center">
               <div className="flex items-center space-x-3">
                 <motion.img
                   src="https://static.vecteezy.com/system/resources/previews/004/697/831/non_2x/the-initial-letter-p-logo-design-modern-and-professional-free-vector.jpg"
                   alt="Logo"
-                  className="h-10 w-10 rounded-full border border-white/20"
+                  className="h-10 w-10 rounded-full border border-cyan-400/30"
                 />
                 <div>
                   <h3 className="text-lg font-bold text-white">Prateek</h3>
@@ -169,20 +169,20 @@ export default function Navbar() {
                 key={item}
                 href={`#${item}`}
                 onClick={toggleMenu}
-                className="block px-4 py-3 text-white/80 hover:text-white font-medium rounded-lg transition-all duration-300 hover:bg-white/10"
+                className="block px-4 py-3 text-white/80 hover:text-white font-medium rounded-lg transition-all duration-300 hover:bg-cyan-400/10"
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: menuOpen ? 1 : 0, x: menuOpen ? 0 : 50 }}
                 transition={{ delay: menuOpen ? index * 0.1 : 0, duration: 0.3 }}
                 whileHover={{ scale: 1.02, x: 10 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <div className="flex items-center justify-between">
-                  <span>{item.charAt(0).toUpperCase() + item.slice(1)}</span>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-800 rounded-full border border-gray-600">
                   <motion.div
-                    className="w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full"
-                    initial={{ scale: 0 }}
-                    whileHover={{ scale: 1 }}
+                    className="w-2 h-2 bg-green-400 rounded-full"
+                    animate={{ scale: [1, 1.5, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
                   />
+                  <span className="text-gray-300 text-sm font-medium">Available for Work</span>
                 </div>
               </motion.a>
             ))}
@@ -192,7 +192,7 @@ export default function Navbar() {
               <motion.a
                 href="#contact"
                 onClick={toggleMenu}
-                className="block w-full py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-semibold text-center hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300"
+                className="block w-full py-3 bg-gradient-to-r from-cyan-400 to-purple-400 text-white rounded-lg font-semibold text-center hover:shadow-lg hover:shadow-cyan-400/50 transition-all duration-300"
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -202,7 +202,7 @@ export default function Navbar() {
           </div>
 
           {/* Mobile Menu Footer */}
-          <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-white/10">
+          <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-cyan-400/20">
             <div className="flex justify-center space-x-4">
               {[
                 { icon: FaGithub, href: "https://github.com/prateek8318" },
@@ -214,7 +214,7 @@ export default function Navbar() {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white/60 hover:text-white hover:bg-white/20 transition-all duration-300"
+                  className="w-10 h-10 bg-cyan-400/10 rounded-full flex items-center justify-center text-white/60 hover:text-white hover:bg-cyan-400/20 transition-all duration-300"
                   whileHover={{ scale: 1.2, y: -3 }}
                   whileTap={{ scale: 0.9 }}
                 >

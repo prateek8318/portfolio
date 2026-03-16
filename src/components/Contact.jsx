@@ -1,18 +1,30 @@
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import Tilt from "react-parallax-tilt";
 import { FaEnvelope, FaGithub, FaLinkedin, FaInstagram, FaMapMarkerAlt, FaPhone } from "react-icons/fa";
 
 export default function Contact() {
+  const ref = React.useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const { scrollYProgress } = useScroll();
+  
+  // Enhanced parallax effects
+  const backgroundY = useTransform(scrollYProgress, [0, 1], [0, -50]);
+  const contentY = useTransform(scrollYProgress, [0, 1], [0, -30]);
+  
   return (
     <section
+      ref={ref}
       id="contact"
-      className="py-20 bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 relative overflow-hidden"
+      className="py-20 bg-gray-950 relative overflow-hidden"
     >
-      {/* Background 3D elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {/* Enhanced Background 3D elements with parallax */}
+      <motion.div 
+        className="absolute inset-0 overflow-hidden pointer-events-none"
+        style={{ y: backgroundY }}
+      >
         <motion.div
-          className="absolute top-20 left-20 w-44 h-44 bg-blue-500/10 rounded-full blur-3xl"
+          className="absolute top-20 left-20 w-52 h-52 bg-orange-500/25 rounded-full blur-3xl will-change-transform"
           animate={{
             x: [0, 80, 0],
             y: [0, -50, 0],
@@ -25,7 +37,7 @@ export default function Contact() {
           }}
         />
         <motion.div
-          className="absolute bottom-20 right-20 w-36 h-36 bg-purple-500/10 rounded-full blur-3xl"
+          className="absolute bottom-20 right-20 w-44 h-44 bg-orange-600/25 rounded-full blur-3xl will-change-transform"
           animate={{
             x: [0, -60, 0],
             y: [0, 40, 0],
@@ -37,24 +49,40 @@ export default function Contact() {
             ease: "easeInOut"
           }}
         />
-      </div>
+      </motion.div>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-8">
+      <motion.div className="relative z-10 max-w-6xl mx-auto px-8" style={{ y: contentY }}>
         <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: -50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: -50 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent mb-4">
+          <motion.h2 
+            className="text-4xl md:text-5xl font-bold text-white mb-4"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={isInView ? { scale: 1, opacity: 1 } : { scale: 0.8, opacity: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
             Get In Touch
-          </h2>
-          <p className="text-gray-400 text-lg">Let's connect and create something amazing together</p>
+          </motion.h2>
+          <motion.p 
+            className="text-gray-400 text-lg"
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            Let's connect and create something amazing together
+          </motion.p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Contact Form */}
+        <motion.div 
+          className="grid grid-cols-1 lg:grid-cols-2 gap-12"
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+        >
+          {/* Enhanced Contact Form */}
           <Tilt
             className="parallax-effect-glare-scale"
             perspective={1000}
@@ -64,24 +92,29 @@ export default function Contact() {
             gyroscope={true}
           >
             <motion.div
-              className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl"
+              className="bg-gray-800 rounded-3xl p-8 border border-gray-700 shadow-2xl"
               initial={{ opacity: 0, x: -50, rotateX: -10 }}
-              whileInView={{ opacity: 1, x: 0, rotateX: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
+              animate={isInView ? { opacity: 1, x: 0, rotateX: 0 } : { opacity: 0, x: -50, rotateX: -10 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
             >
-              <h3 className="text-2xl font-bold text-white mb-6">Send Me a Message</h3>
+              <motion.h3 
+                className="text-2xl font-bold text-white mb-6"
+                initial={{ opacity: 0, y: -20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
+                transition={{ duration: 0.6, delay: 0.7 }}
+              >
+                Send Me a Message
+              </motion.h3>
               <form className="space-y-6">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  viewport={{ once: true }}
+                  animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                  transition={{ duration: 0.5, delay: 0.8 }}
                 >
                   <input
                     type="text"
                     placeholder="Your Name"
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:bg-white/15 transition-all duration-300"
+                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:bg-gray-600 transition-all duration-300"
                   />
                 </motion.div>
                 <motion.div
@@ -138,8 +171,8 @@ export default function Contact() {
               <div className="space-y-6">
                 {[
                   { icon: FaEnvelope, label: "Email", value: "prateekpandey2580@gmail.com", href: "mailto:prateekpandey2580@gmail.com", color: "text-blue-400" },
-                  { icon: FaPhone, label: "Phone", value: "+91 XXXXX XXXXX", href: "tel:+91XXXXX", color: "text-green-400" },
-                  { icon: FaMapMarkerAlt, label: "Location", value: "India", href: "#", color: "text-red-400" }
+                  { icon: FaPhone, label: "Phone", value: "+91 7388437791", href: "tel:+917388437791", color: "text-green-400" },
+                  { icon: FaMapMarkerAlt, label: "Location", value: " Varanasi, Uttar Pradesh, India", href: "#", color: "text-red-400" }
                 ].map((contact, index) => (
                   <motion.a
                     key={index}
@@ -195,20 +228,24 @@ export default function Contact() {
               </div>
             </div>
           </motion.div>
-        </div>
+        </motion.div>
 
         <motion.div
           className="text-center mt-16"
           initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          viewport={{ once: true }}
+          animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ duration: 0.8, delay: 1.2 }}
         >
-          <p className="text-gray-400 text-sm">
+          <motion.p 
+            className="text-gray-400 text-sm"
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            transition={{ duration: 0.6, delay: 1.4 }}
+          >
             © 2025 Prateek Kumar Pandey. All rights reserved.
-          </p>
+          </motion.p>
         </motion.div>
-      </div>
+      </motion.div>
     </section>
   );
 }
