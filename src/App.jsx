@@ -8,7 +8,7 @@ export default function App() {
     <Router>
       <div className="font-sans bg-gray-950 text-white transition-colors duration-300">
         <Navbar />
-        <main className="scroll-smooth">
+        <main className="scroll-smooth pt-20">
           <Home />
         </main>
       </div>

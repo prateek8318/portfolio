@@ -489,9 +489,9 @@ export default function Home() {
 >
   <div className="relative flex items-center justify-center">
     
-    {/* Outer rotating ring */}
+    {/* Outer rotating ring - Responsive */}
     <motion.div
-      className="absolute w-[480px] h-[480px] rounded-full"
+      className="absolute w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[480px] lg:h-[480px] rounded-full"
       style={{
         background: 'conic-gradient(from 0deg, transparent 60%, #f97316 80%, #ef4444 90%, transparent 100%)',
       }}
@@ -499,18 +499,18 @@ export default function Home() {
       transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
     />
 
-    {/* Inner glow ring */}
+    {/* Inner glow ring - Responsive */}
     <div
-      className="absolute w-[300px] h-[300px] rounded-full"
+      className="absolute w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 lg:w-[300px] lg:h-[300px] rounded-full"
       style={{
         boxShadow: '0 0 60px 10px rgba(249, 115, 22, 0.4), inset 0 0 40px rgba(249, 115, 22, 0.1)',
         border: '2px solid rgba(249, 115, 22, 0.5)',
       }}
     />
 
-    {/* Profile Image - Circular */}
+    {/* Profile Image - Circular - Responsive */}
     <motion.div
-      className="relative w-[480px] h-[480px] rounded-full overflow-hidden border-4 border-orange-500/60 z-10"
+      className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[480px] lg:h-[480px] rounded-full overflow-hidden border-4 border-orange-500/60 z-10"
       style={{
         boxShadow: '0 0 30px rgba(249, 115, 22, 0.3)'
       }}
@@ -524,20 +524,20 @@ export default function Home() {
       />
     </motion.div>
 
-    {/* Decorative brackets < > */}
+    {/* Decorative brackets < > - Responsive */}
     <motion.div
-      className="absolute left-0 text-orange-400/40 text-5xl font-bold select-none"
+      className="absolute left-0 text-orange-400/40 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold select-none"
       animate={{ x: [0, -8, 0], opacity: [0.4, 0.7, 0.4] }}
       transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-      style={{ transform: 'translateX(-30px)' }}
+      style={{ transform: 'translateX(-20px) sm:translateX(-25px) md:translateX(-30px)' }}
     >
       {"<"}
     </motion.div>
     <motion.div
-      className="absolute right-0 text-orange-400/40 text-5xl font-bold select-none"
+      className="absolute right-0 text-orange-400/40 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold select-none"
       animate={{ x: [0, 8, 0], opacity: [0.4, 0.7, 0.4] }}
       transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-      style={{ transform: 'translateX(30px)' }}
+      style={{ transform: 'translateX(20px) sm:translateX(25px) md:translateX(30px)' }}
     >
       {">"}
     </motion.div>
