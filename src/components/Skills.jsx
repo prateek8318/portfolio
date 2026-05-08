@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
-import { DotLottiePlayer } from "@dotlottie/react-player";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { useScrollTrigger } from "../hooks/useSmoothScroll";
 import { useAdvancedCursor } from "../hooks/useAdvancedCursor";
 import {
@@ -82,7 +82,7 @@ export default function Skills() {
           
           {/* Smartphones Lottie - Positioned to the far right corner */}
           <div className="absolute -bottom-32 -right-32 w-80 h-80 z-0 pointer-events-none drop-shadow-[0_0_30px_rgba(249,115,22,0.15)] opacity-80">
-            <DotLottiePlayer src="/Smartphones Applications.lottie" autoplay loop />
+            <DotLottieReact src="/Smartphones Applications.lottie" autoplay loop />
           </div>
         </motion.div>
 

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo, useRef } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { FaLaptopCode, FaMobileAlt, FaDatabase, FaArrowUp, FaSun, FaMoon } from "react-icons/fa";
 import { useDarkMode } from "../hooks/useDarkMode";
-import { DotLottiePlayer } from "@dotlottie/react-player";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import About from "./About";
 import Projects from "./Projects";
 import Skills from "./Skills";
@@ -207,7 +207,7 @@ export default function Home() {
 
               {/* Lottie Animation - Developer */}
               <div className="absolute -bottom-10 -left-10 w-48 h-48 z-20 pointer-events-none">
-                <DotLottiePlayer
+                <DotLottieReact
                   src="/Developer.lottie"
                   autoplay
                   loop

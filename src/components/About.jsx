@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
-import { DotLottiePlayer } from "@dotlottie/react-player";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 export default function About() {
   const { scrollYProgress } = useScroll();
@@ -66,7 +66,7 @@ export default function About() {
           <div className="max-w-4xl mx-auto space-y-8 relative">
             {/* Student Lottie - Moved to the far left corner */}
             <div className="absolute -top-40 -left-48 w-64 h-64 z-0 pointer-events-none opacity-60 drop-shadow-[0_0_20px_rgba(249,115,22,0.2)]">
-              <DotLottiePlayer src="/STUDENT.lottie" autoplay loop />
+              <DotLottieReact src="/STUDENT.lottie" autoplay loop />
             </div>
 
             <p className="text-xl md:text-2xl text-gray-200 leading-relaxed text-center font-light relative z-20 px-4">
