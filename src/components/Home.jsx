@@ -11,7 +11,6 @@ import Contact from "./Contact";
 export default function Home() {
   const { scrollYProgress } = useScroll();
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const videoRef = useRef(null);
   const { isDark, toggleDarkMode } = useDarkMode();
 
   // Optimized scroll-based transforms
@@ -50,28 +49,6 @@ export default function Home() {
       
       {/* Optimized Background Layers */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-[-1]">
-        <video
-          ref={videoRef}
-          className="absolute inset-0 w-full h-full object-cover opacity-20"
-          loop
-          muted
-          playsInline
-          onCanPlay={() => {
-            const observer = new IntersectionObserver((entries) => {
-              entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                  videoRef.current?.play().catch(() => {});
-                } else {
-                  videoRef.current?.pause();
-                }
-              });
-            }, { threshold: 0.1 });
-            if (videoRef.current) observer.observe(videoRef.current);
-          }}
-        >
-          <source src="/12681556_3840_2160_30fps.mp4" type="video/mp4" />
-        </video>
-        
         {/* Animated Background Blobs - Simplified */}
         <div className="absolute inset-0 opacity-40">
           <div className="absolute top-0 -left-10 w-96 h-96 bg-purple-600/30 rounded-full blur-[100px] animate-blob"></div>
