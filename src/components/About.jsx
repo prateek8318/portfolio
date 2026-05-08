@@ -21,29 +21,6 @@ export default function About() {
 
   return (
     <section ref={ref} id="about" className="py-24 bg-gray-950 relative overflow-hidden">
-      {/* Background Video for About - Optimized Playback */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
-        <video
-          className="w-full h-full object-cover"
-          loop
-          muted
-          playsInline
-          onCanPlay={(e) => {
-            const observer = new IntersectionObserver((entries) => {
-              entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                  e.target.play().catch(() => {});
-                } else {
-                  e.target.pause();
-                }
-              });
-            }, { threshold: 0.1 });
-            observer.observe(e.target);
-          }}
-        >
-          <source src="/15611992_1920_1080_24fps.mp4" type="video/mp4" />
-        </video>
-      </div>
       {/* Simplified Background Blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div

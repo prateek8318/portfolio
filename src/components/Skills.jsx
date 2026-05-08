@@ -49,29 +49,6 @@ export default function Skills() {
   
   return (
     <section ref={ref} id="skills" className="py-24 bg-gray-950 relative overflow-hidden">
-      {/* Background Video for Skills - Optimized Playback */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
-        <video
-          className="w-full h-full object-cover"
-          loop
-          muted
-          playsInline
-          onCanPlay={(e) => {
-            const observer = new IntersectionObserver((entries) => {
-              entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                  e.target.play().catch(() => {});
-                } else {
-                  e.target.pause();
-                }
-              });
-            }, { threshold: 0.1 });
-            observer.observe(e.target);
-          }}
-        >
-          <source src="/12681556_3840_2160_30fps.mp4" type="video/mp4" />
-        </video>
-      </div>
       {/* Background Glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-orange-500/10 rounded-full blur-[150px] opacity-30" />
