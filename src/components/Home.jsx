@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo, useRef } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { FaLaptopCode, FaMobileAlt, FaDatabase, FaArrowUp, FaSun, FaMoon } from "react-icons/fa";
 import { useDarkMode } from "../hooks/useDarkMode";
+import { DotLottiePlayer } from "@dotlottie/react-player";
 import About from "./About";
 import Projects from "./Projects";
 import Skills from "./Skills";
@@ -51,13 +52,24 @@ export default function Home() {
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-[-1]">
         <video
           ref={videoRef}
-          className="absolute inset-0 w-full h-full object-cover opacity-10"
-          autoPlay
+          className="absolute inset-0 w-full h-full object-cover opacity-20"
           loop
           muted
           playsInline
+          onCanPlay={() => {
+            const observer = new IntersectionObserver((entries) => {
+              entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                  videoRef.current?.play().catch(() => {});
+                } else {
+                  videoRef.current?.pause();
+                }
+              });
+            }, { threshold: 0.1 });
+            if (videoRef.current) observer.observe(videoRef.current);
+          }}
         >
-          <source src="https://www.pexels.com/video/853880/download/" type="video/mp4" />
+          <source src="/12681556_3840_2160_30fps.mp4" type="video/mp4" />
         </video>
         
         {/* Animated Background Blobs - Simplified */}
@@ -98,6 +110,32 @@ export default function Home() {
         ))}
       </div>
 
+      {/* Floating Tech Background Elements */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-20">
+        {['React', 'Node', 'PHP', 'SQL', 'JS', 'CSS'].map((tech, i) => (
+          <motion.div
+            key={tech}
+            className="absolute text-white/5 font-bold text-6xl md:text-8xl select-none"
+            style={{ 
+              left: `${(i * 20) % 100}%`, 
+              top: `${(i * 25) % 100}%` 
+            }}
+            animate={{ 
+              y: [0, -40, 0],
+              x: [0, 20, 0],
+              rotate: [0, 5, 0]
+            }}
+            transition={{ 
+              duration: 10 + i * 2, 
+              repeat: Infinity, 
+              ease: "easeInOut" 
+            }}
+          >
+            {tech}
+          </motion.div>
+        ))}
+      </div>
+
       {/* Hero Section */}
       <motion.section
         id="home"
@@ -106,62 +144,123 @@ export default function Home() {
       >
         <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0, x: -50 },
+              visible: { 
+                opacity: 1, 
+                x: 0,
+                transition: { 
+                  staggerChildren: 0.2,
+                  delayChildren: 0.3 
+                }
+              }
+            }}
             className="space-y-6"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 glass-dark rounded-full border border-white/10">
+            <motion.div 
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0 }
+              }}
+              className="inline-flex items-center gap-2 px-4 py-2 glass-dark rounded-full border border-white/10"
+            >
               <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
               <span className="text-sm text-gray-300">Available for Work</span>
-            </div>
+            </motion.div>
             
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight">
+            <motion.h1 
+              variants={{
+                hidden: { opacity: 0, y: 30 },
+                visible: { opacity: 1, y: 0 }
+              }}
+              className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight"
+            >
               <span className="block text-white">Prateek Kumar</span>
               <span className="block bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent">Pandey</span>
-            </h1>
+            </motion.h1>
             
-            <p className="text-xl md:text-2xl text-gray-400 max-w-xl">
+            <motion.p 
+              variants={{
+                hidden: { opacity: 0 },
+                visible: { opacity: 1 }
+              }}
+              className="text-xl md:text-2xl text-gray-200 max-w-xl font-light"
+            >
               Building outstanding digital experiences with modern web technologies.
-            </p>
+            </motion.p>
 
-            <div className="flex flex-wrap gap-4 pt-4">
-              <a href="#projects" className="btn-luxury px-8 py-3 rounded-xl text-white font-medium hover:scale-105 transition-transform">
+            <motion.div 
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0 }
+              }}
+              className="flex flex-wrap gap-4 pt-4"
+            >
+              <a href="#projects" className="btn-luxury px-8 py-3 rounded-xl text-white font-medium hover:scale-105 transition-transform shadow-[0_0_20px_rgba(249,115,22,0.3)]">
                 View Projects
               </a>
-              <a href="#contact" className="px-8 py-3 glass-luxury rounded-xl text-white font-medium hover:scale-105 transition-transform">
+              <a href="#contact" className="px-8 py-3 glass-luxury rounded-xl text-white font-medium hover:scale-105 transition-transform border border-white/10">
                 Contact Me
               </a>
-            </div>
+            </motion.div>
           </motion.div>
 
-          {/* Profile Image with Simplified Animations */}
+          {/* Profile Image with Floating Robot Icon */}
           <motion.div
             className="relative flex justify-center lg:justify-end"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 1, delay: 0.5 }}
           >
-            <div className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96">
-              {/* Outer Glow */}
-              <div className="absolute inset-0 bg-orange-500/20 rounded-full blur-3xl animate-pulse"></div>
+            <div className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-[450px] md:h-[450px]">
+              {/* Outer Glows */}
+              <div className="absolute inset-0 bg-orange-500/20 rounded-full blur-[100px] animate-pulse"></div>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full border border-white/5 rounded-full animate-[spin_10s_linear_infinite]"></div>
               
               {/* Profile Image Container */}
-              <div className="relative w-full h-full rounded-full overflow-hidden border-4 border-white/10 shadow-2xl z-10">
+              <div className="relative w-full h-full rounded-full overflow-hidden border-4 border-white/10 shadow-2xl z-10 p-2 bg-white/5 backdrop-blur-sm">
                 <img 
-                  src="./image.png" 
+                  src="/image.png" 
                   alt="Profile" 
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover rounded-full"
                 />
               </div>
 
-              {/* Decorative Elements */}
+              {/* Lottie Animation - Developer */}
+              <div className="absolute -bottom-10 -left-10 w-48 h-48 z-20 pointer-events-none">
+                <DotLottiePlayer
+                  src="/Developer.lottie"
+                  autoplay
+                  loop
+                />
+              </div>
+
+              {/* 3D Robot Developer Icon - Generated Asset */}
               <motion.div 
-                className="absolute -top-4 -right-4 w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-white text-xl z-20"
-                animate={{ y: [0, -10, 0] }}
+                className="absolute -top-10 -right-10 w-40 h-40 z-20 pointer-events-none drop-shadow-2xl"
+                animate={{ 
+                  y: [0, -15, 0],
+                  rotate: [0, 5, 0]
+                }}
+                transition={{ 
+                  duration: 6, 
+                  repeat: Infinity,
+                  ease: "easeInOut" 
+                }}
+              >
+                <img src="/robot-3d.png" alt="3D Robot" className="w-full h-full object-contain" />
+              </motion.div>
+
+              {/* Decorative Tech Elements */}
+              <motion.div 
+                className="absolute bottom-10 left-1/2 -translate-x-1/2 px-4 py-2 glass-luxury rounded-2xl border border-white/10 text-white flex items-center gap-3 z-20 shadow-2xl"
+                animate={{ y: [0, 10, 0] }}
                 transition={{ duration: 4, repeat: Infinity }}
               >
-                <FaLaptopCode />
+                <div className="w-3 h-3 bg-orange-500 rounded-full animate-pulse" />
+                <span className="text-sm font-medium">Coding Magic...</span>
               </motion.div>
             </div>
           </motion.div>

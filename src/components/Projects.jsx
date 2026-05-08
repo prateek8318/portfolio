@@ -159,16 +159,42 @@ export default function Projects() {
           </motion.div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12 px-4">
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12 px-4"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={{
+            hidden: {},
+            visible: {
+              transition: {
+                staggerChildren: 0.1
+              }
+            }
+          }}
+        >
           {repos.map((repo, idx) => (
             <motion.div
               key={repo.id}
               className="glass-luxury rounded-[2.5rem] p-8 border border-white/10 hover:border-orange-500/50 transition-all duration-300 group relative overflow-hidden flex flex-col justify-between h-full shadow-2xl"
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: idx * 0.1 }}
+              variants={{
+                hidden: { opacity: 0, y: 30 },
+                visible: { opacity: 1, y: 0 }
+              }}
               whileHover={isMobile ? {} : { y: -12 }}
             >
+              {/* Floating 3D Tech Icon - Top Right */}
+              <motion.div 
+                className="absolute -top-4 -right-4 w-24 h-24 z-0 opacity-20 group-hover:opacity-40 transition-opacity pointer-events-none"
+                animate={{ 
+                  y: [0, 10, 0],
+                  rotate: [0, 5, 0]
+                }}
+                transition={{ duration: 4, repeat: Infinity, delay: idx * 0.2 }}
+              >
+                <img src="/projects-3d.png" alt="3D Tech" className="w-full h-full object-contain" />
+              </motion.div>
+
               {/* Card Background Gradient */}
               <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               
@@ -215,7 +241,7 @@ export default function Projects() {
               </div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       </motion.div>
     </section>
   );

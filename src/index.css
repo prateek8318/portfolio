@@ -558,40 +558,55 @@ textarea:focus-visible {
 
 /* Light mode specific styles */
 .light body {
-  background: #f8fafc;
-  color: #1e293b;
+  background: #fdfdfd;
+  color: #0f172a;
 }
 
 .light .bg-gray-950 {
-  background: #ffffff !important;
+  background: #fdfdfd !important;
 }
 
-.light .bg-gray-800 {
-  background: #f1f5f9 !important;
-}
-
-.light .bg-gray-700 {
-  background: #e2e8f0 !important;
+.light .glass-luxury {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .light .text-white {
-  color: #1e293b !important;
+  color: #0f172a !important;
 }
 
-.light .text-gray-300 {
-  color: #64748b !important;
-}
-
+.light .text-gray-200, 
+.light .text-gray-300, 
 .light .text-gray-400 {
-  color: #94a3b8 !important;
+  color: #334155 !important;
 }
 
-.light .border-gray-700 {
-  border-color: #cbd5e1 !important;
+.light .bg-white\/5 {
+  background: rgba(0, 0, 0, 0.03) !important;
 }
 
-.light .border-gray-600 {
-  border-color: #e2e8f0 !important;
+.light .border-white\/10,
+.light .border-white\/5 {
+  border-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.light video {
+  opacity: 0.15 !important;
+  filter: grayscale(0.5) contrast(1.2);
+}
+
+.light .particle-bg {
+  opacity: 0.5;
+}
+
+.light .glass-dark {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #0f172a;
 }
 
 /* Dark mode toggle button */

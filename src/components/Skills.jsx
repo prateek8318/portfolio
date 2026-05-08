@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
+import { DotLottiePlayer } from "@dotlottie/react-player";
 import { useScrollTrigger } from "../hooks/useSmoothScroll";
 import { useAdvancedCursor } from "../hooks/useAdvancedCursor";
 import {
@@ -26,7 +27,7 @@ const skills = [
 
 export default function Skills() {
   const ref = React.useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
   const { scrollYProgress } = useScroll();
   const { progress: scrollProgress } = useScrollTrigger(ref, { trigger: 0.2 });
   const { addMagneticEffect } = useAdvancedCursor();
@@ -48,20 +49,64 @@ export default function Skills() {
   
   return (
     <section ref={ref} id="skills" className="py-24 bg-gray-950 relative overflow-hidden">
+      {/* Background Video for Skills - Optimized Playback */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+        <video
+          className="w-full h-full object-cover"
+          loop
+          muted
+          playsInline
+          onCanPlay={(e) => {
+            const observer = new IntersectionObserver((entries) => {
+              entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                  e.target.play().catch(() => {});
+                } else {
+                  e.target.pause();
+                }
+              });
+            }, { threshold: 0.1 });
+            observer.observe(e.target);
+          }}
+        >
+          <source src="/12681556_3840_2160_30fps.mp4" type="video/mp4" />
+        </video>
+      </div>
       {/* Background Glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-orange-500/5 rounded-full blur-[120px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-orange-500/10 rounded-full blur-[150px] opacity-30" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
         <motion.div
-          className="text-center mb-20"
+          className="text-center mb-20 relative"
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
         >
-          <h2 className="text-4xl md:text-6xl font-bold text-white mb-4">Technical Expertise</h2>
-          <div className="w-20 h-1.5 bg-gradient-to-r from-orange-400 to-pink-500 mx-auto rounded-full" />
+          {/* 3D Brain Icon */}
+          <motion.div 
+            className="absolute -top-24 left-1/2 -translate-x-1/2 w-32 h-32 z-0 opacity-40 pointer-events-none"
+            animate={{ 
+              y: [0, -20, 0],
+              rotateY: [0, 180, 360]
+            }}
+            transition={{ 
+              duration: 10, 
+              repeat: Infinity,
+              ease: "linear" 
+            }}
+          >
+            <img src="/skills-3d.png" alt="3D Brain" className="w-full h-full object-contain" />
+          </motion.div>
+
+          <h2 className="text-4xl md:text-6xl font-bold text-white mb-4 relative z-20">Technical Expertise</h2>
+          <div className="w-20 h-1.5 bg-gradient-to-r from-orange-400 to-pink-500 mx-auto rounded-full relative z-20" />
+          
+          {/* Smartphones Lottie - Positioned to the far right corner */}
+          <div className="absolute -bottom-32 -right-32 w-80 h-80 z-0 pointer-events-none drop-shadow-[0_0_30px_rgba(249,115,22,0.15)] opacity-80">
+            <DotLottiePlayer src="/Smartphones Applications.lottie" autoplay loop />
+          </div>
         </motion.div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
