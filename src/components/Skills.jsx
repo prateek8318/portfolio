@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import Tilt from "react-parallax-tilt";
 import {
@@ -27,6 +27,17 @@ export default function Skills() {
   const ref = React.useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const { scrollYProgress } = useScroll();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768); // md breakpoint
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   // Enhanced parallax effects
   const backgroundY = useTransform(scrollYProgress, [0, 1], [0, -50]);
@@ -100,15 +111,7 @@ export default function Skills() {
           transition={{ duration: 0.8, delay: 0.5 }}
         >
           {skills.map((skill, idx) => (
-            <Tilt
-              key={idx}
-              className="parallax-effect-glare-scale"
-              perspective={1000}
-              glareEnable={true}
-              glareMaxOpacity={0.2}
-              scale={1.05}
-              gyroscope={true}
-            >
+            isMobile ? (
               <motion.div
                 className="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-2xl hover:shadow-blue-400/20 transition-all duration-300 group"
                 initial={{ opacity: 0, y: 50, rotateX: -15 }}
@@ -136,7 +139,45 @@ export default function Skills() {
                 </div>
                 <span className="text-gray-400 text-sm mt-1 block">{skill.level}%</span>
               </motion.div>
-            </Tilt>
+            ) : (
+              <Tilt
+                key={idx}
+                className="parallax-effect-glare-scale"
+                perspective={1000}
+                glareEnable={true}
+                glareMaxOpacity={0.2}
+                scale={1.05}
+                gyroscope={true}
+              >
+                <motion.div
+                  className="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-2xl hover:shadow-blue-400/20 transition-all duration-300 group"
+                  initial={{ opacity: 0, y: 50, rotateX: -15 }}
+                  animate={isInView ? { opacity: 1, y: 0, rotateX: 0 } : { opacity: 0, y: 50, rotateX: -15 }}
+                  transition={{ duration: 0.6, delay: 0.6 + idx * 0.05 }}
+                  whileHover={{ y: -5, scale: 1.02 }}
+                >
+                  <motion.div
+                    className={`text-5xl mb-4 bg-gradient-to-r ${skill.color} bg-clip-text text-transparent`}
+                    whileHover={{ rotate: 360, scale: 1.2 }}
+                    transition={{ duration: 0.6 }}
+                  >
+                    {skill.icon}
+                  </motion.div>
+                  <h3 className="text-white font-semibold text-lg mb-2 group-hover:text-orange-400 transition-colors">
+                    {skill.name}
+                  </h3>
+                  <div className="relative h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <motion.div
+                      className="absolute top-0 left-0 h-full bg-gradient-to-r from-orange-400 to-orange-600 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={isInView ? { width: `${skill.level}%` } : { width: 0 }}
+                      transition={{ duration: 1, delay: idx * 0.1 + 0.5, ease: "easeOut" }}
+                    />
+                  </div>
+                  <span className="text-gray-400 text-sm mt-1 block">{skill.level}%</span>
+                </motion.div>
+              </Tilt>
+            )
           ))}
         </motion.div>
 
