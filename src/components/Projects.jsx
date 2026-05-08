@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
-import Tilt from "react-parallax-tilt";
 import { FaGithub, FaExternalLinkAlt, FaStar, FaCode } from "react-icons/fa";
+import { useScrollTrigger } from "../hooks/useSmoothScroll";
+import { useAdvancedCursor } from "../hooks/useAdvancedCursor";
 
 export default function Projects() {
   const [repos, setRepos] = useState([]);
@@ -11,6 +12,8 @@ export default function Projects() {
   const ref = React.useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const { scrollYProgress } = useScroll();
+  const { progress: scrollProgress } = useScrollTrigger(ref, { trigger: 0.2 });
+  const { addMagneticEffect } = useAdvancedCursor();
 
   useEffect(() => {
     const checkMobile = () => {
@@ -28,7 +31,7 @@ export default function Projects() {
 
   useEffect(() => {
     const user = "prateek8318";
-    const url = `https://api.github.com/users/${user}/repos?per_page=100&sort=updated`;
+    const url = `https://api.github.com/users/${user}/repos?per_page=12&sort=updated`;
 
     fetch(url)
       .then((res) => {
@@ -36,8 +39,9 @@ export default function Projects() {
         return res.json();
       })
       .then((data) => {
+        // Only show top 8 projects for performance
         setRepos(
-          data.map((r) => ({
+          data.slice(0, 8).map((r) => ({
             id: r.id,
             name: r.name,
             description: r.description,
@@ -45,8 +49,8 @@ export default function Projects() {
             homepage: r.homepage,
             language: r.language,
             stargazers_count: r.stargazers_count,
+            forks_count: r.forks_count,
             updated_at: r.updated_at,
-            default_branch: r.default_branch,
           }))
         );
       })
@@ -55,62 +59,84 @@ export default function Projects() {
   }, []);
 
   return (
-    <section ref={ref} id="projects" className="py-20 bg-gray-950 relative overflow-hidden">
-      {/* Enhanced Background 3D elements with parallax */}
-      <motion.div 
-        className="absolute inset-0 overflow-hidden pointer-events-none"
-        style={{ y: backgroundY }}
-      >
+    <section ref={ref} id="projects" className="py-24 md:py-32 bg-gray-950 relative overflow-hidden">
+      {/* Premium Ambient Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Floating gradient orbs */}
         <motion.div
-          className="absolute top-10 right-10 w-40 h-40 bg-orange-500/25 rounded-full blur-2xl will-change-transform"
-          animate={{
-            x: [0, -50, 0],
-            y: [0, 30, 0],
-            scale: [1, 1.3, 1]
-          }}
-          transition={{
-            duration: 12,
-            repeat: Infinity,
-            ease: "easeInOut"
+          className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-3xl cinematic-float"
+          style={{ mixBlendMode: 'screen' }}
+        />
+        <motion.div
+          className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full blur-3xl cinematic-float"
+          style={{ 
+            mixBlendMode: 'screen',
+            animationDelay: '4s'
           }}
         />
         <motion.div
-          className="absolute bottom-10 left-10 w-48 h-48 bg-orange-600/25 rounded-full blur-2xl will-change-transform"
-          animate={{
-            x: [0, 40, 0],
-            y: [0, -30, 0],
-            scale: [1, 0.7, 1]
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            ease: "easeInOut"
+          className="absolute top-1/3 left-1/4 w-64 h-64 bg-gradient-to-r from-orange-500/15 to-yellow-500/15 rounded-full blur-2xl cinematic-float"
+          style={{ 
+            mixBlendMode: 'screen',
+            animationDelay: '8s'
           }}
         />
-      </motion.div>
+      </div>
 
-      <motion.div className="relative z-10" style={{ y: contentY }}>
+      <motion.div className="relative z-10 max-w-7xl mx-auto px-6 md:px-8">
+        {/* Premium Section Header */}
         <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: -50 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: -50 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="text-center mb-20"
+          initial={{ opacity: 0, y: -80 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: -80 }}
+          transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
         >
+          <motion.div className="inline-block mb-6">
+            <motion.div 
+              className="glass-luxury px-6 py-3 rounded-full border border-white/10 inline-block"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={isInView ? { scale: 1, opacity: 1 } : { scale: 0.8, opacity: 0 }}
+              transition={{ duration: 0.8, delay: 0.2, ease: [0.23, 1, 0.32, 1] }}
+            >
+              <span className="text-subtitle text-orange-400 font-medium">Portfolio</span>
+            </motion.div>
+          </motion.div>
+          
           <motion.h2 
-            className="text-4xl md:text-5xl font-bold text-white mb-4"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={isInView ? { scale: 1, opacity: 1 } : { scale: 0.8, opacity: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-5xl md:text-7xl font-bold text-white mb-6 text-hero"
+            initial={{ opacity: 0, y: 40 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+            transition={{ duration: 1, delay: 0.4, ease: [0.23, 1, 0.32, 1] }}
           >
-            My Projects
+            <div className="overflow-hidden">
+              <motion.span 
+                className="block"
+                initial={{ y: 100 }}
+                animate={isInView ? { y: 0 } : { y: 100 }}
+                transition={{ duration: 0.8, delay: 0.5, ease: [0.23, 1, 0.32, 1] }}
+              >
+                Featured
+              </motion.span>
+            </div>
+            <div className="overflow-hidden">
+              <motion.span 
+                className="block bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent"
+                initial={{ y: 100 }}
+                animate={isInView ? { y: 0 } : { y: 100 }}
+                transition={{ duration: 0.8, delay: 0.6, ease: [0.23, 1, 0.32, 1] }}
+              >
+                Projects
+              </motion.span>
+            </div>
           </motion.h2>
+          
           <motion.p 
-            className="text-gray-400 text-lg"
+            className="text-xl text-gray-300 text-premium max-w-2xl mx-auto"
             initial={{ opacity: 0 }}
             animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            transition={{ duration: 1, delay: 0.8, ease: [0.23, 1, 0.32, 1] }}
           >
-            Explore my latest work and contributions
+            Explore my latest work and open-source contributions
           </motion.p>
         </motion.div>
 
@@ -133,123 +159,61 @@ export default function Projects() {
           </motion.div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 justify-items-center px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12 px-4">
           {repos.map((repo, idx) => (
-            isMobile ? (
-              <motion.div
-                className="relative w-[320px] min-h-[200px] bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-2xl hover:shadow-orange-500/20 transition-all duration-300 group"
-                initial={{ opacity: 0, y: 50, rotateX: -15 }}
-                animate={isInView ? { opacity: 1, y: 0, rotateX: 0 } : { opacity: 0, y: 50, rotateX: -15 }}
-                transition={{ duration: 0.6, delay: idx * 0.1 }}
-                whileHover={{ y: -10, scale: 1.02 }}
-              >
-                {/* Project Header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-orange-400 transition-colors">
-                      {repo.name}
-                    </h3>
-                    <p className="text-gray-400 text-sm line-clamp-2">
-                      {repo.description || 'No description available'}
-                    </p>
+            <motion.div
+              key={repo.id}
+              className="glass-luxury rounded-[2.5rem] p-8 border border-white/10 hover:border-orange-500/50 transition-all duration-300 group relative overflow-hidden flex flex-col justify-between h-full shadow-2xl"
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: idx * 0.1 }}
+              whileHover={isMobile ? {} : { y: -12 }}
+            >
+              {/* Card Background Gradient */}
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              
+              <div className="relative z-10">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="p-3 bg-orange-500/10 rounded-2xl text-orange-400 group-hover:scale-110 transition-transform">
+                    <FaCode size={20} />
                   </div>
                   {repo.language && (
-                    <span className="px-2 py-1 bg-gray-700 text-orange-400 text-xs rounded-full ml-3">
+                    <span className="px-3 py-1 bg-white/5 rounded-full text-xs text-gray-400 border border-white/10">
                       {repo.language}
                     </span>
                   )}
                 </div>
                 
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-1">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                      </svg>
-                      <span>{repo.stargazers_count}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 2 2 0 00-2.828 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z"/>
-                      </svg>
-                      <span>{repo.forks_count}</span>
-                    </div>
+                <h3 className="text-xl font-bold text-white mb-2 group-hover:text-orange-400 transition-colors">
+                  {repo.name}
+                </h3>
+                
+                <p className="text-gray-400 text-sm line-clamp-3 mb-6">
+                  {repo.description || 'Creating amazing digital experiences with clean and efficient code.'}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between pt-4 border-t border-white/5 relative z-10">
+                <div className="flex gap-4">
+                  <div className="flex items-center gap-1 text-gray-500 text-sm">
+                    <FaStar className="text-orange-400/60" />
+                    <span>{repo.stargazers_count}</span>
                   </div>
-                  <motion.a
-                    href={repo.html_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-orange-400 hover:text-orange-300 font-medium"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    View →
-                  </motion.a>
+                  <div className="flex items-center gap-1 text-gray-500 text-sm">
+                    <FaGithub className="hover:text-white transition-colors cursor-pointer" />
+                  </div>
                 </div>
-              </motion.div>
-            ) : (
-              <Tilt
-                key={repo.id}
-                className="parallax-effect-glare-scale"
-                perspective={1000}
-                glareEnable={true}
-                glareMaxOpacity={0.3}
-                scale={1.05}
-                gyroscope={true}
-              >
-                <motion.div
-                  className="relative w-[320px] min-h-[200px] bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-2xl hover:shadow-orange-500/20 transition-all duration-300 group"
-                  initial={{ opacity: 0, y: 50, rotateX: -15 }}
-                  animate={isInView ? { opacity: 1, y: 0, rotateX: 0 } : { opacity: 0, y: 50, rotateX: -15 }}
-                  transition={{ duration: 0.6, delay: idx * 0.1 }}
-                  whileHover={{ y: -10, scale: 1.02 }}
+                
+                <a
+                  href={repo.html_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-orange-400 font-medium text-sm flex items-center gap-1 hover:gap-2 transition-all"
                 >
-                  {/* Project Header */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-white mb-2 group-hover:text-orange-400 transition-colors">
-                        {repo.name}
-                      </h3>
-                      <p className="text-gray-400 text-sm line-clamp-2">
-                        {repo.description || 'No description available'}
-                      </p>
-                    </div>
-                    {repo.language && (
-                      <span className="px-2 py-1 bg-gray-700 text-orange-400 text-xs rounded-full ml-3">
-                        {repo.language}
-                      </span>
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center space-x-1">
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                        </svg>
-                        <span>{repo.stargazers_count}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 2 2 0 00-2.828 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z"/>
-                        </svg>
-                        <span>{repo.forks_count || 0}</span>
-                      </div>
-                    </div>
-                    <motion.a
-                      href={repo.html_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-orange-400 hover:text-orange-300 font-medium"
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                    >
-                      View →
-                    </motion.a>
-                  </div>
-                </motion.div>
-              </Tilt>
-            )
+                  View <FaExternalLinkAlt size={10} />
+                </a>
+              </div>
+            </motion.div>
           ))}
         </div>
       </motion.div>
