@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaRobot, FaTimes, FaPaperPlane } from 'react-icons/fa';
-import OpenAI from 'openai';
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -30,50 +29,36 @@ export default function Chatbot() {
     setIsLoading(true);
 
     try {
-      // Initialize OpenAI directly in frontend
-      const openai = new OpenAI({
-        apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-        dangerouslyAllowBrowser: true
-      });
+      // Smart Fixed Responses based on keywords
+      const userText = input.toLowerCase();
+      let reply = "";
 
-      const systemPrompt = {
-        role: "system",
-        content: `You are PrateekAI, an elite personal AI assistant representing Prateek Kumar Pandey.
-        
-        ABOUT PRATEEK:
-        - A highly skilled Full Stack Developer with 2.5+ years of experience.
-        - Tech Arsenal: React, Node.js, PHP, Laravel, SQL, Tailwind CSS.
-        - Achievements: Built 15+ premium projects, ranging from enterprise dashboards to healthcare platforms.
-        - Masterpieces: 
-          1. OLCURE (Healthcare Platform with telemedicine).
-          2. Shaadi Overseas (Global Wedding Directory).
-          3. Nitarya Security (Workforce Admin Panel).
-        - Signature Style: Creates web experiences with a "wow-factor", focusing on premium UI/UX, buttery smooth animations, and scalable architecture.
-        
-        YOUR PERSONALITY:
-        - Confident, highly professional, yet warm and engaging.
-        - You don't give boring, generic answers. You highlight his exceptional skills and premium style.
-        - Keep responses concise (2-4 sentences max), punchy, and impactful.
-        - Always encourage the user (recruiters/clients) to hire Prateek or contact him via the portfolio's contact section.
-        - Never invent fake details.`
-      };
+      if (userText.includes("skill") || userText.includes("tech") || userText.includes("stack")) {
+        reply = "I specialize in React, Node.js, PHP, Laravel, SQL, and Tailwind CSS. I love building scalable applications with premium UI/UX!";
+      } else if (userText.includes("project") || userText.includes("work") || userText.includes("portfolio")) {
+        reply = "I've built 15+ premium projects, including OLCURE (a Healthcare App) and Shaadi Overseas. You can check them out in my 'Featured Work' section!";
+      } else if (userText.includes("experience") || userText.includes("background")) {
+        reply = "I have 2.5+ years of experience as a Full Stack Developer, delivering enterprise-level solutions and high-performance web apps.";
+      } else if (userText.includes("contact") || userText.includes("hire") || userText.includes("email")) {
+        reply = "You can easily reach out to me via the Contact section at the bottom of the page, or email me directly at prateek@portfolio.com. Let's build something awesome!";
+      } else if (userText.includes("hi") || userText.includes("hello") || userText.includes("hey")) {
+        reply = "Hello there! I'm Prateek's AI assistant. Ask me about his skills, projects, or experience!";
+      } else {
+        reply = "That's an interesting question! Since I'm currently running on a fixed response system, I can't answer everything. But you can definitely ask me about Prateek's skills, projects, or how to contact him!";
+      }
 
-      const response = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [systemPrompt, ...messages, userMessage],
-        temperature: 0.7,
-        max_tokens: 150,
-      });
+      // Simulate network delay for realistic feel
+      setTimeout(() => {
+        setMessages(prev => [...prev, { role: 'assistant', content: reply }]);
+        setIsLoading(false);
+      }, 1000);
 
-      const aiMessage = response.choices[0].message;
-      setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
       console.error(error);
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: "Oops! I'm having trouble connecting to my brain. Please try again later or contact Prateek directly." 
+        content: "Oops! I'm having trouble connecting right now." 
       }]);
-    } finally {
       setIsLoading(false);
     }
   };
