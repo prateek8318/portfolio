@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import emailjs from "@emailjs/browser";
 import { 
   SectionWrapper, 
   Container, 
@@ -11,6 +12,26 @@ import { contactInfo, socialLinks, personalInfo } from "../data/constants";
 
 export default function Contact() {
   const [isMobile, setIsMobile] = useState(false);
+  const form = useRef();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null);
+
+  const sendEmail = (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus(null);
+
+    // EmailJS Configuration
+    emailjs.sendForm('service_cyl658l', 'template_mvz4azj', form.current, 'tnj-hQDTFjQZB72fa')
+      .then((result) => {
+          setSubmitStatus("success");
+          setIsSubmitting(false);
+          e.target.reset();
+      }, (error) => {
+          setSubmitStatus("error");
+          setIsSubmitting(false);
+      });
+  };
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -40,11 +61,25 @@ export default function Contact() {
             className="glass-luxury rounded-[2.5rem] p-8 md:p-10 border border-white/10"
           >
             <h3 className="text-2xl font-bold text-white mb-8">Send Me a Message</h3>
-            <form className="space-y-6">
-              <Input placeholder="Your Name" />
-              <EmailInput />
-              <Textarea />
-              <Button type="submit">Send Message</Button>
+            <form ref={form} onSubmit={sendEmail} className="space-y-6">
+              
+              <Input name="user_name" placeholder="Your Name" required />
+              <EmailInput name="user_email" required />
+              <Textarea name="message" required />
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Sending..." : "Send Message"}
+              </Button>
+              
+              {submitStatus === "success" && (
+                <div className="text-green-400 text-sm font-medium text-center mt-2">
+                  Message sent successfully!
+                </div>
+              )}
+              {submitStatus === "error" && (
+                <div className="text-red-400 text-sm font-medium text-center mt-2">
+                  Failed to send message. Please try again later.
+                </div>
+              )}
             </form>
           </motion.div>
 

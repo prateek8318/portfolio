@@ -4,7 +4,7 @@ import { animations } from "../../utils/helpers";
 
 export function SectionWrapper({ children, className = "", id }) {
   return (
-    <section id={id} className={`py-20 bg-gray-950 relative overflow-hidden ${className}`}>
+    <section id={id} className={`py-12 md:py-20 bg-gray-950 relative overflow-hidden ${className}`}>
       {children}
     </section>
   );

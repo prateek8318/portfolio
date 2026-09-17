@@ -1,12 +1,17 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 import { FaLaptopCode, FaMobileAlt, FaDatabase, FaArrowUp, FaSun, FaMoon } from "react-icons/fa";
 import { useDarkMode } from "../hooks/useDarkMode";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
-import About from "./About";
-import Projects from "./Projects";
-import Skills from "./Skills";
-import Contact from "./Contact";
+import { TypewriterText } from "./TypewriterText";
+
+// Lazy load below-the-fold components for performance
+const TerminalIntro = React.lazy(() => import("./TerminalIntro"));
+const About = React.lazy(() => import("./About"));
+const StatsDashboard = React.lazy(() => import("./StatsDashboard"));
+const Projects = React.lazy(() => import("./Projects"));
+const Skills = React.lazy(() => import("./Skills"));
+const Contact = React.lazy(() => import("./Contact"));
 
 export default function Home() {
   const { scrollYProgress } = useScroll();
@@ -16,6 +21,25 @@ export default function Home() {
   // Optimized scroll-based transforms
   const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
   const heroScale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
+
+  // Mouse Parallax Logic
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const springX = useSpring(mouseX, { stiffness: 50, damping: 20 });
+  const springY = useSpring(mouseY, { stiffness: 50, damping: 20 });
+  
+  const bgX = useTransform(springX, [-0.5, 0.5], [30, -30]);
+  const bgY = useTransform(springY, [-0.5, 0.5], [30, -30]);
+  const fgX = useTransform(springX, [-0.5, 0.5], [-30, 30]);
+  const fgY = useTransform(springY, [-0.5, 0.5], [-30, 30]);
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    mouseX.set(x);
+    mouseY.set(y);
+  };
   
   // Handle scroll to top button visibility
   useEffect(() => {
@@ -30,17 +54,13 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Memoize particles to prevent re-renders
-  const particles = useMemo(() => [...Array(12)].map((_, i) => ({
-    id: i,
-    size: Math.random() * 4 + 2 + 'px',
-    left: Math.random() * 100 + '%',
-    delay: Math.random() * 5,
-    duration: Math.random() * 8 + 8
-  })), []);
-
   return (
-    <div className="relative">
+    <motion.div 
+      className="relative"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, y: -20, transition: { duration: 0.3 } }}
+    >
       {/* Scroll Progress Bar */}
       <motion.div 
         className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-400 to-pink-500 z-50 origin-left"
@@ -49,50 +69,27 @@ export default function Home() {
       
       {/* Optimized Background Layers */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-[-1]">
-        {/* Animated Background Blobs - Simplified */}
-        <div className="absolute inset-0 opacity-40">
+        {/* Animated Background Blobs with Parallax */}
+        <motion.div 
+          className="absolute inset-0 opacity-40"
+          style={{ x: bgX, y: bgY }}
+        >
           <div className="absolute top-0 -left-10 w-96 h-96 bg-purple-600/30 rounded-full blur-[100px] animate-blob"></div>
           <div className="absolute top-1/4 -right-10 w-96 h-96 bg-orange-600/20 rounded-full blur-[100px] animate-blob animation-delay-2000"></div>
           <div className="absolute -bottom-10 left-1/4 w-96 h-96 bg-pink-600/20 rounded-full blur-[100px] animate-blob animation-delay-4000"></div>
-        </div>
+        </motion.div>
         
         <div className="absolute inset-0 bg-gray-950/40 backdrop-blur-[80px]"></div>
       </div>
       
-      {/* Particle Background */}
-      <div className="particle-bg fixed inset-0 pointer-events-none z-0">
-        {particles.map((p) => (
-          <motion.div
-            key={p.id}
-            className="particle"
-            style={{
-              width: p.size,
-              height: p.size,
-              left: p.left,
-              backgroundColor: 'rgba(249, 115, 22, 0.3)',
-              borderRadius: '50%',
-              position: 'absolute'
-            }}
-            animate={{
-              y: ['110vh', '-10vh'],
-              opacity: [0, 0.8, 0],
-            }}
-            transition={{
-              duration: p.duration,
-              repeat: Infinity,
-              delay: p.delay,
-              ease: "linear"
-            }}
-          />
-        ))}
-      </div>
+      {/* Particle Background Removed for Performance */}
 
       {/* Floating Tech Background Elements */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-20">
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-100">
         {['React', 'Node', 'PHP', 'SQL', 'JS', 'CSS'].map((tech, i) => (
           <motion.div
             key={tech}
-            className="absolute text-white/5 font-bold text-6xl md:text-8xl select-none"
+            className="absolute text-white/10 font-bold text-6xl md:text-8xl select-none"
             style={{ 
               left: `${(i * 20) % 100}%`, 
               top: `${(i * 25) % 100}%` 
@@ -116,6 +113,8 @@ export default function Home() {
       {/* Hero Section */}
       <motion.section
         id="home"
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => { mouseX.set(0); mouseY.set(0); }}
         className="min-h-screen flex items-center justify-center p-8 relative overflow-hidden"
         style={{ opacity: heroOpacity, scale: heroScale }}
       >
@@ -158,15 +157,7 @@ export default function Home() {
               <span className="block bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent">Pandey</span>
             </motion.h1>
             
-            <motion.p 
-              variants={{
-                hidden: { opacity: 0 },
-                visible: { opacity: 1 }
-              }}
-              className="text-xl md:text-2xl text-gray-200 max-w-xl font-light"
-            >
-              Building outstanding digital experiences with modern web technologies.
-            </motion.p>
+            <TypewriterText />
 
             <motion.div 
               variants={{
@@ -181,6 +172,9 @@ export default function Home() {
               <a href="#contact" className="px-8 py-3 glass-luxury rounded-xl text-white font-medium hover:scale-105 transition-transform border border-white/10">
                 Contact Me
               </a>
+              <a href="/resume.pdf" download className="px-8 py-3 glass-luxury rounded-xl text-white font-medium hover:scale-105 transition-transform border border-white/10 text-orange-400">
+                Download CV
+              </a>
             </motion.div>
           </motion.div>
 
@@ -190,6 +184,7 @@ export default function Home() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.5 }}
+            style={{ x: fgX, y: fgY }}
           >
             <div className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-[450px] md:h-[450px]">
               {/* Outer Glows */}
@@ -214,21 +209,7 @@ export default function Home() {
                 />
               </div>
 
-              {/* 3D Robot Developer Icon - Generated Asset */}
-              <motion.div 
-                className="absolute -top-10 -right-10 w-40 h-40 z-20 pointer-events-none drop-shadow-2xl"
-                animate={{ 
-                  y: [0, -15, 0],
-                  rotate: [0, 5, 0]
-                }}
-                transition={{ 
-                  duration: 6, 
-                  repeat: Infinity,
-                  ease: "easeInOut" 
-                }}
-              >
-                <img src="/robot-3d.png" alt="3D Robot" className="w-full h-full object-contain" />
-              </motion.div>
+              {/* 3D Robot Developer Icon Removed for Performance - Keeping only Lottie */}
 
               {/* Decorative Tech Elements */}
               <motion.div 
@@ -244,11 +225,15 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* Sections */}
-      <About />
-      <Projects />
-      <Skills />
-      <Contact />
+      {/* Sections - Lazy Loaded */}
+      <React.Suspense fallback={<div className="h-screen flex items-center justify-center text-orange-400">Loading section...</div>}>
+        <TerminalIntro />
+        <About />
+        <StatsDashboard />
+        <Projects />
+        <Skills />
+        <Contact />
+      </React.Suspense>
 
       {/* UI Controls */}
       <div className="fixed bottom-8 right-8 flex flex-col gap-4 z-50">
@@ -273,6 +258,6 @@ export default function Home() {
           {isDark ? <FaSun /> : <FaMoon />}
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 }

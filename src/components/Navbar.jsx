@@ -76,7 +76,8 @@ export default function Navbar() {
             </motion.a>
           ))}
           <motion.a
-            href="#contact"
+            href="/resume.pdf"
+            download
             variants={{
               hidden: { opacity: 0, scale: 0.8 },
               visible: { opacity: 1, scale: 1 }
@@ -84,7 +85,7 @@ export default function Navbar() {
             className="px-6 py-2 bg-gradient-to-r from-orange-400 to-orange-600 text-white rounded-xl font-semibold shadow-[0_0_15px_rgba(249,115,22,0.4)]"
             whileHover={{ scale: 1.05, boxShadow: "0 0 25px rgba(249,115,22,0.6)" }}
           >
-            Hire Me
+            Resume
           </motion.a>
         </motion.div>
 
@@ -153,24 +154,15 @@ export default function Navbar() {
             {/* Footer / CTA */}
             <div className="p-8 border-t border-white/5 bg-black/40">
               <motion.a
-                href="#contact"
-                onClick={(e) => {
-                  e.preventDefault();
-                  toggleMenu();
-                  setTimeout(() => {
-                    const element = document.getElementById('contact');
-                    if (element) {
-                      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                  }, 100);
-                }}
+                href="/resume.pdf"
+                download
                 className="block py-5 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-center rounded-2xl font-bold text-xl shadow-[0_10px_30px_rgba(249,115,22,0.3)] mb-8"
                 whileTap={{ scale: 0.95 }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7 }}
               >
-                Hire Me
+                Download Resume
               </motion.a>
 
               <div className="flex justify-center gap-10">

@@ -20,7 +20,7 @@ export default function About() {
   const contentY = useTransform(scrollYProgress, [0, 1], [0, -30]);
 
   return (
-    <section ref={ref} id="about" className="py-24 bg-gray-950 relative overflow-hidden">
+    <section ref={ref} id="about" className="py-12 md:py-24 bg-gray-950 relative overflow-hidden">
       {/* Simplified Background Blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
@@ -75,8 +75,8 @@ export default function About() {
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
               {[
-                { number: "50+", label: "Projects Completed", icon: "🚀" },
-                { number: "2+", label: "Years Experience", icon: "💎" },
+                { number: "15+", label: "Projects Completed", icon: "🚀" },
+                { number: "2.5+", label: "Years Experience", icon: "💎" },
                 { number: "100%", label: "Client Satisfaction", icon: "⭐" }
               ].map((stat, index) => (
                 <motion.div

@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { motion, useScroll, useTransform, useInView } from "framer-motion";
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
-import { useScrollTrigger } from "../hooks/useSmoothScroll";
-import { useAdvancedCursor } from "../hooks/useAdvancedCursor";
+import { motion, useInView, AnimatePresence } from "framer-motion";
 import {
   FaHtml5, FaCss3Alt, FaJs, FaReact,
   FaPhp, FaLaravel, FaGitAlt, FaDatabase,
@@ -10,111 +7,116 @@ import {
   FaMicrosoft
 } from "react-icons/fa";
 
-const skills = [
-  { icon: <FaHtml5 />, name: "HTML", level: 95, color: "from-orange-500 to-red-500" },
-  { icon: <FaCss3Alt />, name: "CSS", level: 90, color: "from-blue-500 to-blue-600" },
-  { icon: <FaJs />, name: "JavaScript", level: 85, color: "from-yellow-400 to-yellow-600" },
-  { icon: <FaReact />, name: "React", level: 88, color: "from-cyan-400 to-blue-500" },
-  { icon: <FaReact />, name: "React Native", level: 82, color: "from-blue-400 to-cyan-600" },
-  { icon: <FaPhp />, name: "PHP", level: 92, color: "from-purple-500 to-indigo-600" },
-  { icon: <FaLaravel />, name: "Laravel", level: 87, color: "from-red-500 to-orange-600" },
-  { icon: <FaDatabase />, name: "MySQL", level: 83, color: "from-blue-600 to-cyan-600" },
-  { icon: <FaGitAlt />, name: "Git", level: 86, color: "from-orange-600 to-red-600" },
-  { icon: <FaNodeJs />, name: "Node.js", level: 85, color: "from-green-500 to-green-700" },
-  { icon: <FaMicrosoft />, name: ".NET", level: 78, color: "from-purple-600 to-blue-600" },
-  { icon: <FaDocker />, name: "Docker", level: 70, color: "from-blue-500 to-blue-700" },
-];
+const skillCategories = {
+  Backend: [
+    { icon: <FaPhp />, name: "PHP", level: 92, color: "from-purple-500 to-indigo-600" },
+    { icon: <FaLaravel />, name: "Laravel", level: 87, color: "from-red-500 to-orange-600" },
+    { icon: <FaNodeJs />, name: "Node.js", level: 85, color: "from-green-500 to-green-700" },
+    { icon: <FaMicrosoft />, name: ".NET Core", level: 78, color: "from-purple-600 to-blue-600" },
+    { icon: <FaPython />, name: "Python", level: 75, color: "from-yellow-500 to-blue-500" },
+  ],
+  Frontend: [
+    { icon: <FaReact />, name: "React", level: 88, color: "from-cyan-400 to-blue-500" },
+    { icon: <FaReact />, name: "React Native", level: 82, color: "from-blue-400 to-cyan-600" },
+    { icon: <FaJs />, name: "JavaScript", level: 85, color: "from-yellow-400 to-yellow-600" },
+    { icon: <FaHtml5 />, name: "HTML5", level: 95, color: "from-orange-500 to-red-500" },
+    { icon: <FaCss3Alt />, name: "CSS3 / Tailwind", level: 90, color: "from-blue-500 to-blue-600" },
+  ],
+  Database: [
+    { icon: <FaDatabase />, name: "MySQL", level: 88, color: "from-blue-600 to-cyan-600" },
+    { icon: <FaDatabase />, name: "PostgreSQL", level: 80, color: "from-blue-400 to-blue-500" },
+    { icon: <FaDatabase />, name: "MongoDB", level: 75, color: "from-green-500 to-green-600" },
+    { icon: <FaDatabase />, name: "Redis", level: 70, color: "from-red-500 to-red-600" },
+  ],
+  DevOps: [
+    { icon: <FaDocker />, name: "Docker", level: 85, color: "from-blue-500 to-blue-700" },
+    { icon: <FaGitAlt />, name: "Git & CI/CD", level: 90, color: "from-orange-600 to-red-600" },
+    { icon: <FaAws />, name: "AWS", level: 75, color: "from-orange-400 to-orange-600" },
+  ]
+};
 
 export default function Skills() {
   const ref = React.useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
-  const { scrollYProgress } = useScroll();
-  const { progress: scrollProgress } = useScrollTrigger(ref, { trigger: 0.2 });
-  const { addMagneticEffect } = useAdvancedCursor();
-  const [isMobile, setIsMobile] = useState(false);
+  const [activeTab, setActiveTab] = useState("Backend");
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768); // md breakpoint
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-  
-  // Enhanced parallax effects
-  const backgroundY = useTransform(scrollYProgress, [0, 1], [0, -50]);
-  const contentY = useTransform(scrollYProgress, [0, 1], [0, -30]);
-  
   return (
-    <section ref={ref} id="skills" className="py-24 bg-gray-950 relative overflow-hidden">
-      {/* Background Glow */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-orange-500/10 rounded-full blur-[150px] opacity-30" />
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto px-6">
+    <section ref={ref} id="skills" className="py-12 md:py-24 bg-gray-950 relative overflow-hidden">
+      <div className="relative z-10 max-w-5xl mx-auto px-6">
         <motion.div
-          className="text-center mb-20 relative"
+          className="text-center mb-16"
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
         >
-          {/* 3D Brain Icon */}
-          <motion.div 
-            className="absolute -top-24 left-1/2 -translate-x-1/2 w-32 h-32 z-0 opacity-40 pointer-events-none"
-            animate={{ 
-              y: [0, -20, 0],
-              rotateY: [0, 180, 360]
-            }}
-            transition={{ 
-              duration: 10, 
-              repeat: Infinity,
-              ease: "linear" 
-            }}
-          >
-            <img src="/skills-3d.png" alt="3D Brain" className="w-full h-full object-contain" />
-          </motion.div>
-
-          <h2 className="text-4xl md:text-6xl font-bold text-white mb-4 relative z-20">Technical Expertise</h2>
-          <div className="w-20 h-1.5 bg-gradient-to-r from-orange-400 to-pink-500 mx-auto rounded-full relative z-20" />
-          
-          {/* Smartphones Lottie - Positioned to the far right corner */}
-          <div className="absolute -bottom-32 -right-32 w-80 h-80 z-0 pointer-events-none drop-shadow-[0_0_30px_rgba(249,115,22,0.15)] opacity-80">
-            <DotLottieReact src="/Smartphones Applications.lottie" autoplay loop />
-          </div>
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Technical Arsenal</h2>
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            Tools and technologies I use to build robust, scalable applications.
+          </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {skills.map((skill, idx) => (
-            <motion.div
-              key={idx}
-              className="glass-luxury rounded-3xl p-6 border border-white/10 hover:border-orange-500/50 transition-all duration-300 group"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={isInView ? { opacity: 1, scale: 1 } : {}}
-              transition={{ delay: idx * 0.05 }}
-              whileHover={isMobile ? {} : { y: -5 }}
+        {/* Tab Navigation */}
+        <div className="flex flex-wrap justify-center gap-4 mb-12">
+          {Object.keys(skillCategories).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`relative px-6 py-2 rounded-full text-sm font-medium transition-colors ${
+                activeTab === tab ? "text-white" : "text-gray-400 hover:text-white"
+              }`}
             >
-              <div className={`text-4xl md:text-5xl mb-6 bg-gradient-to-r ${skill.color} bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-500`}>
-                {skill.icon}
-              </div>
-              
-              <h3 className="text-white font-bold text-lg mb-4">{skill.name}</h3>
-              
-              <div className="relative h-2 bg-white/5 rounded-full overflow-hidden">
+              {activeTab === tab && (
                 <motion.div
-                  className={`absolute top-0 left-0 h-full bg-gradient-to-r ${skill.color} rounded-full`}
-                  initial={{ width: 0 }}
-                  animate={isInView ? { width: `${skill.level}%` } : {}}
-                  transition={{ duration: 1.5, delay: 0.5 + idx * 0.05 }}
+                  layoutId="activeTab"
+                  className="absolute inset-0 bg-white/10 rounded-full border border-white/20"
+                  initial={false}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
-              </div>
-              <div className="mt-2 text-right">
-                <span className="text-gray-500 text-xs font-medium">{skill.level}%</span>
-              </div>
-            </motion.div>
+              )}
+              <span className="relative z-10">{tab}</span>
+            </button>
           ))}
+        </div>
+
+        {/* Skill Grid */}
+        <div className="min-h-[300px]">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="grid grid-cols-2 md:grid-cols-3 gap-6"
+            >
+              {skillCategories[activeTab].map((skill, idx) => (
+                <motion.div
+                  key={skill.name}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className="glass-dark rounded-2xl p-6 border border-white/5 hover:border-orange-500/30 transition-colors group"
+                >
+                  <motion.div 
+                    className="text-4xl mb-4 text-orange-400 group-hover:scale-110 group-hover:text-white transition-all origin-left"
+                    animate={{ y: [0, -8, 0] }}
+                    transition={{ duration: 3 + (idx % 3), repeat: Infinity, ease: "easeInOut", delay: idx * 0.2 }}
+                  >
+                    {skill.icon}
+                  </motion.div>
+                  <h3 className="text-white font-medium mb-3">{skill.name}</h3>
+                  <div className="relative h-1.5 bg-white/5 rounded-full overflow-hidden">
+                    <motion.div
+                      className={`absolute top-0 left-0 h-full bg-gradient-to-r ${skill.color} rounded-full`}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${skill.level}%` }}
+                      transition={{ duration: 1, delay: 0.2 + idx * 0.05 }}
+                    />
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </section>
