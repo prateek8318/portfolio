@@ -77,7 +77,9 @@ export default function Navbar() {
           ))}
           <motion.a
             href="/resume.pdf"
-            download
+            target="_blank" 
+            rel="noopener noreferrer"
+            download="Prateek_Resume.pdf"
             variants={{
               hidden: { opacity: 0, scale: 0.8 },
               visible: { opacity: 1, scale: 1 }
@@ -155,7 +157,9 @@ export default function Navbar() {
             <div className="p-8 border-t border-white/5 bg-black/40">
               <motion.a
                 href="/resume.pdf"
-                download
+                target="_blank" 
+                rel="noopener noreferrer"
+                download="Prateek_Resume.pdf"
                 className="block py-5 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-center rounded-2xl font-bold text-xl shadow-[0_10px_30px_rgba(249,115,22,0.3)] mb-8"
                 whileTap={{ scale: 0.95 }}
                 initial={{ opacity: 0, y: 20 }}

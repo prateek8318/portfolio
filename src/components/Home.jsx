@@ -172,7 +172,7 @@ export default function Home() {
               <a href="#contact" className="px-8 py-3 glass-luxury rounded-xl text-white font-medium hover:scale-105 transition-transform border border-white/10">
                 Contact Me
               </a>
-              <a href="/resume.pdf" download className="px-8 py-3 glass-luxury rounded-xl text-white font-medium hover:scale-105 transition-transform border border-white/10 text-orange-400">
+              <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" download="Prateek_Resume.pdf" className="px-8 py-3 glass-luxury rounded-xl text-white font-medium hover:scale-105 transition-transform border border-white/10 text-orange-400">
                 Download CV
               </a>
             </motion.div>
