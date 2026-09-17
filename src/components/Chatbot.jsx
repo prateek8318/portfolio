@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaRobot, FaTimes, FaPaperPlane } from 'react-icons/fa';
+import OpenAI from 'openai';
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -29,19 +30,43 @@ export default function Chatbot() {
     setIsLoading(true);
 
     try {
-      // In local dev, Vite proxy handles this. In Vercel, it hits the serverless function.
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [...messages, userMessage].map(m => ({ role: m.role, content: m.content }))
-        })
+      // Initialize OpenAI directly in frontend
+      const openai = new OpenAI({
+        apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+        dangerouslyAllowBrowser: true
       });
 
-      if (!response.ok) throw new Error('API Error');
+      const systemPrompt = {
+        role: "system",
+        content: `You are PrateekAI, an elite personal AI assistant representing Prateek Kumar Pandey.
+        
+        ABOUT PRATEEK:
+        - A highly skilled Full Stack Developer with 2.5+ years of experience.
+        - Tech Arsenal: React, Node.js, PHP, Laravel, SQL, Tailwind CSS.
+        - Achievements: Built 15+ premium projects, ranging from enterprise dashboards to healthcare platforms.
+        - Masterpieces: 
+          1. OLCURE (Healthcare Platform with telemedicine).
+          2. Shaadi Overseas (Global Wedding Directory).
+          3. Nitarya Security (Workforce Admin Panel).
+        - Signature Style: Creates web experiences with a "wow-factor", focusing on premium UI/UX, buttery smooth animations, and scalable architecture.
+        
+        YOUR PERSONALITY:
+        - Confident, highly professional, yet warm and engaging.
+        - You don't give boring, generic answers. You highlight his exceptional skills and premium style.
+        - Keep responses concise (2-4 sentences max), punchy, and impactful.
+        - Always encourage the user (recruiters/clients) to hire Prateek or contact him via the portfolio's contact section.
+        - Never invent fake details.`
+      };
 
-      const data = await response.json();
-      setMessages(prev => [...prev, data.message]);
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [systemPrompt, ...messages, userMessage],
+        temperature: 0.7,
+        max_tokens: 150,
+      });
+
+      const aiMessage = response.choices[0].message;
+      setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
       console.error(error);
       setMessages(prev => [...prev, { 
