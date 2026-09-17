@@ -6,8 +6,17 @@ const LoadingScreen = () => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
+    // Check if user has already seen the loader in this session
+    const hasSeenLoader = sessionStorage.getItem('hasSeenLoader');
+    
+    if (hasSeenLoader) {
+      setIsLoading(false);
+      return;
+    }
+
     const timer = setTimeout(() => {
       setIsLoading(false);
+      sessionStorage.setItem('hasSeenLoader', 'true');
     }, 3000);
 
     const progressTimer = setInterval(() => {

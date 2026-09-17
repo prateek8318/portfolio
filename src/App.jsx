@@ -6,6 +6,7 @@ import Navbar from "./components/Navbar";
 import Home from "./components/Home";
 import LoadingScreen from "./components/LoadingScreen";
 import CustomCursor from "./components/CustomCursor";
+import Chatbot from "./components/Chatbot";
 
 const ProjectDetails = React.lazy(() => import("./pages/ProjectDetails"));
 
@@ -15,6 +16,7 @@ const AppContent = () => {
   return (
     <>
       <CustomCursor />
+      <Chatbot />
       <CommandPalette />
       <Navbar />
       <main className="scroll-smooth pt-20">
