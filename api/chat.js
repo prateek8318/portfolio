@@ -1,10 +1,13 @@
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY,
-});
-
 export default async function handler(req, res) {
+  const apiKey = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY;
+  
+  if (!apiKey) {
+    return res.status(500).json({ message: 'API key is missing in Vercel Environment Variables.' });
+  }
+
+  const openai = new OpenAI({ apiKey });
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
