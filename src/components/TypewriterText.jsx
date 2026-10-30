@@ -1,34 +1,42 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 
-const taglines = [
-  "I build scalable web experiences."
+const ROLES = [
+  "scalable web apps.",
+  "REST APIs & microservices.",
+  "admin dashboards.",
+  "React Native mobile apps.",
+  "fast, clean UIs.",
 ];
 
 export const TypewriterText = () => {
-  const [index, setIndex] = useState(0);
+  const [roleIndex, setRoleIndex] = useState(0);
+  const [text, setText] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % taglines.length);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, []);
+    const full = ROLES[roleIndex];
+    let delay = deleting ? 35 : 70;
+
+    if (!deleting && text === full) delay = 1800;
+    if (deleting && text === "") delay = 300;
+
+    const t = setTimeout(() => {
+      if (!deleting && text === full) return setDeleting(true);
+      if (deleting && text === "") {
+        setDeleting(false);
+        return setRoleIndex((i) => (i + 1) % ROLES.length);
+      }
+      setText(full.slice(0, text.length + (deleting ? -1 : 1)));
+    }, delay);
+
+    return () => clearTimeout(t);
+  }, [text, deleting, roleIndex]);
 
   return (
-    <div className="h-8 overflow-hidden relative">
-      <AnimatePresence mode="wait">
-        <motion.p
-          key={index}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.3 }}
-          className="text-xl md:text-2xl text-gray-200 max-w-xl font-light font-mono"
-        >
-          &gt; {taglines[index]}<motion.span animate={{ opacity: [1, 0] }} transition={{ repeat: Infinity, duration: 0.8 }}>_</motion.span>
-        </motion.p>
-      </AnimatePresence>
-    </div>
+    <p className="min-h-[2em] font-mono text-base text-gray-300 sm:text-lg md:text-xl" aria-live="polite">
+      <span className="text-orange-400">&gt;</span> I build{" "}
+      <span className="text-white">{text}</span>
+      <span className="ml-0.5 inline-block h-[1.1em] w-[2px] translate-y-[3px] animate-pulse bg-orange-400" />
+    </p>
   );
 };

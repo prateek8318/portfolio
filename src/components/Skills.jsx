@@ -1,116 +1,132 @@
-import React, { useState, useEffect } from "react";
-import { motion, useInView, AnimatePresence } from "framer-motion";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  FaHtml5, FaCss3Alt, FaJs, FaReact,
-  FaPhp, FaLaravel, FaGitAlt, FaDatabase,
-  FaNodeJs, FaPython, FaDocker, FaAws,
-  FaMicrosoft
-} from "react-icons/fa";
+  SiPhp, SiLaravel, SiNodedotjs, SiDotnet, SiPython, SiReact, SiJavascript, SiHtml5,
+  SiTailwindcss, SiMysql, SiPostgresql, SiMongodb, SiRedis, SiDocker, SiGit, SiAmazonwebservices,
+} from "react-icons/si";
+import { FaServer, FaPalette, FaDatabase, FaCloud } from "react-icons/fa";
+import { SectionWrapper, Container, SectionHeader } from "./common/Layout";
 
-const skillCategories = {
-  Backend: [
-    { icon: <FaPhp />, name: "PHP", level: 92, color: "from-purple-500 to-indigo-600" },
-    { icon: <FaLaravel />, name: "Laravel", level: 87, color: "from-red-500 to-orange-600" },
-    { icon: <FaNodeJs />, name: "Node.js", level: 85, color: "from-green-500 to-green-700" },
-    { icon: <FaMicrosoft />, name: ".NET Core", level: 78, color: "from-purple-600 to-blue-600" },
-    { icon: <FaPython />, name: "Python", level: 75, color: "from-yellow-500 to-blue-500" },
-  ],
-  Frontend: [
-    { icon: <FaReact />, name: "React", level: 88, color: "from-cyan-400 to-blue-500" },
-    { icon: <FaReact />, name: "React Native", level: 82, color: "from-blue-400 to-cyan-600" },
-    { icon: <FaJs />, name: "JavaScript", level: 85, color: "from-yellow-400 to-yellow-600" },
-    { icon: <FaHtml5 />, name: "HTML5", level: 95, color: "from-orange-500 to-red-500" },
-    { icon: <FaCss3Alt />, name: "CSS3 / Tailwind", level: 90, color: "from-blue-500 to-blue-600" },
-  ],
-  Database: [
-    { icon: <FaDatabase />, name: "MySQL", level: 88, color: "from-blue-600 to-cyan-600" },
-    { icon: <FaDatabase />, name: "PostgreSQL", level: 80, color: "from-blue-400 to-blue-500" },
-    { icon: <FaDatabase />, name: "MongoDB", level: 75, color: "from-green-500 to-green-600" },
-    { icon: <FaDatabase />, name: "Redis", level: 70, color: "from-red-500 to-red-600" },
-  ],
-  DevOps: [
-    { icon: <FaDocker />, name: "Docker", level: 85, color: "from-blue-500 to-blue-700" },
-    { icon: <FaGitAlt />, name: "Git & CI/CD", level: 90, color: "from-orange-600 to-red-600" },
-    { icon: <FaAws />, name: "AWS", level: 75, color: "from-orange-400 to-orange-600" },
-  ]
+const CATEGORIES = {
+  Backend: {
+    Icon: FaServer,
+    skills: [
+      { Icon: SiPhp, name: "PHP", level: 92, color: "#777BB4" },
+      { Icon: SiLaravel, name: "Laravel", level: 87, color: "#FF2D20" },
+      { Icon: SiNodedotjs, name: "Node.js", level: 85, color: "#5FA04E" },
+      { Icon: SiDotnet, name: ".NET Core", level: 78, color: "#7B61FF" },
+      { Icon: SiPython, name: "Python", level: 75, color: "#3776AB" },
+    ],
+  },
+  Frontend: {
+    Icon: FaPalette,
+    skills: [
+      { Icon: SiReact, name: "React", level: 88, color: "#61DAFB" },
+      { Icon: SiReact, name: "React Native", level: 82, color: "#61DAFB" },
+      { Icon: SiJavascript, name: "JavaScript", level: 85, color: "#F7DF1E" },
+      { Icon: SiHtml5, name: "HTML5", level: 95, color: "#E34F26" },
+      { Icon: SiTailwindcss, name: "CSS / Tailwind", level: 90, color: "#38BDF8" },
+    ],
+  },
+  Database: {
+    Icon: FaDatabase,
+    skills: [
+      { Icon: SiMysql, name: "MySQL", level: 88, color: "#4479A1" },
+      { Icon: SiPostgresql, name: "PostgreSQL", level: 80, color: "#4169E1" },
+      { Icon: SiMongodb, name: "MongoDB", level: 75, color: "#47A248" },
+      { Icon: SiRedis, name: "Redis", level: 70, color: "#FF4438" },
+    ],
+  },
+  DevOps: {
+    Icon: FaCloud,
+    skills: [
+      { Icon: SiDocker, name: "Docker", level: 85, color: "#2496ED" },
+      { Icon: SiGit, name: "Git & CI/CD", level: 90, color: "#F05032" },
+      { Icon: SiAmazonwebservices, name: "AWS", level: 75, color: "#FF9900" },
+    ],
+  },
 };
 
+const levelLabel = (n) => (n >= 88 ? "Expert" : n >= 80 ? "Advanced" : "Proficient");
+
 export default function Skills() {
-  const ref = React.useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-50px" });
-  const [activeTab, setActiveTab] = useState("Backend");
+  const [active, setActive] = useState("Backend");
 
   return (
-    <section ref={ref} id="skills" className="py-12 md:py-24 bg-gray-950 relative overflow-hidden">
-      <div className="relative z-10 max-w-5xl mx-auto px-6">
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
-        >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Technical Arsenal</h2>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Tools and technologies I use to build robust, scalable applications.
-          </p>
-        </motion.div>
+    <SectionWrapper id="skills">
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-orange-500/5 blur-[140px]" />
+      <Container>
+        <SectionHeader
+          eyebrow="Skills"
+          title="Technical"
+          highlight="Arsenal"
+          subtitle="Tools and technologies I use to build robust, scalable applications."
+        />
 
-        {/* Tab Navigation */}
-        <div className="flex flex-wrap justify-center gap-4 mb-12">
-          {Object.keys(skillCategories).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`relative px-6 py-2 rounded-full text-sm font-medium transition-colors ${
-                activeTab === tab ? "text-white" : "text-gray-400 hover:text-white"
-              }`}
-            >
-              {activeTab === tab && (
-                <motion.div
-                  layoutId="activeTab"
-                  className="absolute inset-0 bg-white/10 rounded-full border border-white/20"
-                  initial={false}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                />
-              )}
-              <span className="relative z-10">{tab}</span>
-            </button>
-          ))}
+        {/* Tabs — scrollable on small screens */}
+        <div className="-mx-5 mb-10 overflow-x-auto px-5 sm:mx-0 sm:px-0">
+          <div className="mx-auto flex w-max gap-2 rounded-2xl border border-white/10 bg-white/5 p-1.5">
+            {Object.entries(CATEGORIES).map(([name, { Icon }]) => (
+              <button
+                key={name}
+                onClick={() => setActive(name)}
+                className={`relative flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors sm:px-5 ${
+                  active === name ? "text-white" : "text-gray-400 hover:text-white"
+                }`}
+                aria-pressed={active === name}
+              >
+                {active === name && (
+                  <motion.span
+                    layoutId="skill-tab"
+                    className="absolute inset-0 rounded-xl bg-gradient-to-r from-orange-500/30 to-pink-500/30 ring-1 ring-orange-400/40"
+                    transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                  />
+                )}
+                <Icon className="relative text-xs" />
+                <span className="relative">{name}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Skill Grid */}
-        <div className="min-h-[300px]">
+        <div className="min-h-[320px]">
           <AnimatePresence mode="wait">
             <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 10 }}
+              key={active}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-              className="grid grid-cols-2 md:grid-cols-3 gap-6"
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
+              className="grid grid-cols-1 gap-4 min-[420px]:grid-cols-2 lg:grid-cols-3"
             >
-              {skillCategories[activeTab].map((skill, idx) => (
+              {CATEGORIES[active].skills.map(({ Icon, name, level, color }, i) => (
                 <motion.div
-                  key={skill.name}
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  key={name}
+                  initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: idx * 0.05 }}
-                  className="glass-dark rounded-2xl p-6 border border-white/5 hover:border-orange-500/30 transition-colors group"
+                  transition={{ delay: i * 0.05 }}
+                  className="glass-luxury card-glow group rounded-2xl p-5"
                 >
-                  <motion.div 
-                    className="text-4xl mb-4 text-orange-400 group-hover:scale-110 group-hover:text-white transition-all origin-left"
-                    animate={{ y: [0, -8, 0] }}
-                    transition={{ duration: 3 + (idx % 3), repeat: Infinity, ease: "easeInOut", delay: idx * 0.2 }}
-                  >
-                    {skill.icon}
-                  </motion.div>
-                  <h3 className="text-white font-medium mb-3">{skill.name}</h3>
-                  <div className="relative h-1.5 bg-white/5 rounded-full overflow-hidden">
+                  <div className="mb-4 flex items-center gap-3">
+                    <span
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-2xl transition-transform duration-300 group-hover:scale-110"
+                      style={{ background: `${color}1f`, color }}
+                    >
+                      <Icon />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="truncate font-semibold text-white">{name}</h3>
+                      <p className="text-xs text-gray-500">{levelLabel(level)}</p>
+                    </div>
+                    <span className="font-mono text-sm font-semibold text-gray-300">{level}%</span>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
                     <motion.div
-                      className={`absolute top-0 left-0 h-full bg-gradient-to-r ${skill.color} rounded-full`}
+                      className="h-full rounded-full"
+                      style={{ background: `linear-gradient(90deg, ${color}, #f97316)` }}
                       initial={{ width: 0 }}
-                      animate={{ width: `${skill.level}%` }}
-                      transition={{ duration: 1, delay: 0.2 + idx * 0.05 }}
+                      animate={{ width: `${level}%` }}
+                      transition={{ duration: 1, delay: 0.15 + i * 0.05, ease: [0.22, 1, 0.36, 1] }}
                     />
                   </div>
                 </motion.div>
@@ -118,7 +134,7 @@ export default function Skills() {
             </motion.div>
           </AnimatePresence>
         </div>
-      </div>
-    </section>
+      </Container>
+    </SectionWrapper>
   );
 }

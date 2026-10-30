@@ -10,17 +10,21 @@ import Chatbot from "./components/Chatbot";
 
 const ProjectDetails = React.lazy(() => import("./pages/ProjectDetails"));
 
+const PageFallback = () => (
+  <div className="flex min-h-screen items-center justify-center">
+    <div className="h-8 w-8 animate-spin rounded-full border-2 border-orange-400 border-t-transparent" />
+  </div>
+);
+
 const AppContent = () => {
   const location = useLocation();
-  
+
   return (
     <>
       <CustomCursor />
-      <Chatbot />
-      <CommandPalette />
       <Navbar />
-      <main className="scroll-smooth pt-20">
-        <React.Suspense fallback={<LoadingScreen />}>
+      <main className="bg-noise relative">
+        <React.Suspense fallback={<PageFallback />}>
           <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
               <Route path="/" element={<Home />} />
@@ -29,6 +33,8 @@ const AppContent = () => {
           </AnimatePresence>
         </React.Suspense>
       </main>
+      <Chatbot />
+      <CommandPalette />
     </>
   );
 };
@@ -37,7 +43,7 @@ export default function App() {
   return (
     <Router>
       <LoadingScreen />
-      <div className="font-sans bg-gray-950 text-white transition-colors duration-300">
+      <div className="min-h-screen bg-[#07070b] font-sans text-white antialiased">
         <AppContent />
       </div>
     </Router>

@@ -1,97 +1,56 @@
 import React, { useEffect, useState } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 
+// Only for real mouse users — touch devices keep their normal behaviour
 export default function CustomCursor() {
-  const [isHovered, setIsHovered] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  
-  const cursorX = useMotionValue(-100);
-  const cursorY = useMotionValue(-100);
-  
-  // Spring config for smooth trailing effect
-  const springConfig = { damping: 25, stiffness: 400 };
-  const cursorXSpring = useSpring(cursorX, springConfig);
-  const cursorYSpring = useSpring(cursorY, springConfig);
+  const [enabled, setEnabled] = useState(false);
+  const [hovered, setHovered] = useState(false);
+
+  const x = useMotionValue(-100);
+  const y = useMotionValue(-100);
+  const sx = useSpring(x, { damping: 25, stiffness: 400 });
+  const sy = useSpring(y, { damping: 25, stiffness: 400 });
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.matchMedia("(max-width: 768px)").matches);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    
-    if (isMobile) return;
+    const mq = window.matchMedia("(pointer: fine) and (min-width: 1024px)");
+    const update = () => setEnabled(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
-    const moveCursor = (e) => {
-      cursorX.set(e.clientX);
-      cursorY.set(e.clientY);
-    };
+  useEffect(() => {
+    if (!enabled) return;
+    document.documentElement.classList.add("has-custom-cursor");
 
-    const handleMouseOver = (e) => {
-      if (
-        e.target.tagName.toLowerCase() === 'a' ||
-        e.target.tagName.toLowerCase() === 'button' ||
-        e.target.closest('a') ||
-        e.target.closest('button') ||
-        e.target.classList.contains('interactive')
-      ) {
-        setIsHovered(true);
-      } else {
-        setIsHovered(false);
-      }
-    };
+    const move = (e) => { x.set(e.clientX); y.set(e.clientY); };
+    const over = (e) => setHovered(!!e.target.closest?.("a, button, input, textarea, [role='button'], .interactive"));
 
-    window.addEventListener("mousemove", moveCursor);
-    window.addEventListener("mouseover", handleMouseOver);
-
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseover", over);
     return () => {
-      window.removeEventListener("mousemove", moveCursor);
-      window.removeEventListener("mouseover", handleMouseOver);
-      window.removeEventListener("resize", checkMobile);
+      document.documentElement.classList.remove("has-custom-cursor");
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mouseover", over);
     };
-  }, [cursorX, cursorY, isMobile]);
+  }, [enabled, x, y]);
 
-  if (isMobile) return null;
+  if (!enabled) return null;
 
   return (
     <>
-      <style>{`
-        /* Hide default cursor on desktop */
-        @media (min-width: 768px) {
-          * {
-            cursor: none !important;
-          }
-        }
-      `}</style>
       <motion.div
-        className="fixed top-0 left-0 w-8 h-8 rounded-full pointer-events-none z-[9999] mix-blend-difference"
-        style={{
-          x: cursorXSpring,
-          y: cursorYSpring,
-          translateX: "-50%",
-          translateY: "-50%",
-        }}
+        className="pointer-events-none fixed left-0 top-0 z-[9999] h-8 w-8 rounded-full border-2 border-orange-400/60"
+        style={{ x: sx, y: sy, translateX: "-50%", translateY: "-50%" }}
         animate={{
-          scale: isHovered ? 2 : 1,
-          backgroundColor: isHovered ? "rgba(255, 255, 255, 1)" : "rgba(255, 255, 255, 0)",
-          border: isHovered ? "2px solid transparent" : "2px solid rgba(255, 255, 255, 0.5)",
+          scale: hovered ? 1.8 : 1,
+          backgroundColor: hovered ? "rgba(249,115,22,0.15)" : "rgba(249,115,22,0)",
         }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      >
-        <motion.div 
-          className="absolute inset-0 bg-orange-500 rounded-full opacity-50 blur-md pointer-events-none"
-          animate={{
-            scale: isHovered ? 1.5 : 0,
-            opacity: isHovered ? 0.3 : 0,
-          }}
-        />
-      </motion.div>
+      />
       <motion.div
-        className="fixed top-0 left-0 w-1.5 h-1.5 bg-white rounded-full pointer-events-none z-[10000]"
-        style={{
-          x: cursorX,
-          y: cursorY,
-          translateX: "-50%",
-          translateY: "-50%",
-        }}
+        className="pointer-events-none fixed left-0 top-0 z-[10000] h-1.5 w-1.5 rounded-full bg-orange-400"
+        style={{ x, y, translateX: "-50%", translateY: "-50%" }}
       />
     </>
   );

@@ -1,192 +1,243 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaBars, FaTimes, FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaEnvelope, FaInstagram, FaSun, FaMoon, FaArrowRight } from "react-icons/fa";
+import { useLocation } from "react-router-dom";
+import { useDarkMode } from "../hooks/useDarkMode";
+import { useSectionNav } from "../hooks/useSectionNav";
+import { socialLinks } from "../data/constants";
+
+const NAV_ITEMS = [
+  { id: "home", label: "Home" },
+  { id: "about", label: "About" },
+  { id: "services", label: "Services" },
+  { id: "projects", label: "Work" },
+  { id: "skills", label: "Skills" },
+  { id: "contact", label: "Contact" },
+];
+
+const SOCIAL_ICONS = { FaGithub, FaLinkedin, FaEnvelope, FaInstagram };
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [active, setActive] = useState("home");
+  const { isDark, toggleDarkMode } = useDarkMode();
+  const goTo = useSectionNav();
+  const location = useLocation();
 
-  // Prevent body scroll when mobile menu is open
+  // Lock page scroll while the mobile menu is open
   useEffect(() => {
-    if (menuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
   }, [menuOpen]);
 
-  const toggleMenu = () => setMenuOpen(!menuOpen);
+  // Close menu on Escape / when the screen becomes desktop-sized
+  useEffect(() => {
+    const onKey = (e) => e.key === "Escape" && setMenuOpen(false);
+    const onResize = () => window.innerWidth >= 1024 && setMenuOpen(false);
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Highlight the section currently in view
+  useEffect(() => {
+    if (location.pathname !== "/") return;
+    let observer;
+    const setup = () => {
+      const sections = NAV_ITEMS.map((n) => document.getElementById(n.id)).filter(Boolean);
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => e.isIntersecting && setActive(e.target.id));
+        },
+        { rootMargin: "-45% 0px -50% 0px" }
+      );
+      sections.forEach((s) => observer.observe(s));
+    };
+    // Sections are lazy-loaded, give them a moment to mount
+    const t = setTimeout(setup, 800);
+    return () => {
+      clearTimeout(t);
+      observer?.disconnect();
+    };
+  }, [location.pathname]);
+
+  const handleNav = (id) => {
+    setMenuOpen(false);
+    setTimeout(() => goTo(id), menuOpen ? 250 : 0);
+  };
 
   return (
-    <motion.nav
-      className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-gray-900/90 border-b border-gray-700 shadow-2xl"
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
-    >
-      <div className="relative z-10 max-w-7xl mx-auto flex justify-between items-center p-4">
-        {/* Logo */}
-        <motion.div
-          className="flex items-center space-x-4 group"
-          whileHover={{ scale: 1.05 }}
+    <>
+      <motion.header
+        className="fixed inset-x-0 top-0 z-50 flex justify-center px-3 sm:px-4"
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <nav
+          className={`mt-3 flex w-full max-w-6xl items-center justify-between rounded-2xl border px-3 py-2 transition-all duration-500 sm:px-4 ${
+            scrolled
+              ? "glass-luxury border-white/10"
+              : "border-transparent bg-transparent"
+          }`}
+          aria-label="Main navigation"
         >
-          <motion.div whileHover={{ rotate: 360 }} transition={{ duration: 0.8 }}>
-            <img
-              src="https://static.vecteezy.com/system/resources/previews/004/697/831/non_2x/the-initial-letter-p-logo-design-modern-and-professional-free-vector.jpg"
-              alt="Logo"
-              className="h-12 w-12 rounded-full border-2 border-gray-600 shadow-lg"
-            />
-          </motion.div>
-          <div>
-            <h1 className="text-2xl font-bold text-orange-400">Prateek</h1>
-            <p className="text-xs text-gray-400 font-medium">Full Stack Developer</p>
-          </div>
-        </motion.div>
+          {/* Logo */}
+          <button onClick={() => handleNav("home")} className="group flex items-center gap-3" aria-label="Go to top">
+            <span className="keep-white relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-pink-500 font-display text-lg font-bold text-white shadow-lg shadow-orange-500/30 transition-transform duration-500 group-hover:rotate-[360deg]">
+              P
+            </span>
+            <span className="hidden text-left leading-tight sm:block">
+              <span className="block font-display text-base font-bold text-white">Prateek</span>
+              <span className="block text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400">Full Stack Dev</span>
+            </span>
+          </button>
 
-        {/* Desktop Nav */}
-        <motion.div 
-          className="hidden lg:flex items-center space-x-8"
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: {},
-            visible: {
-              transition: {
-                staggerChildren: 0.1,
-                delayChildren: 0.5
-              }
-            }
-          }}
-        >
-          {["home", "about", "projects", "skills", "contact"].map((item, i) => (
-            <motion.a
-              key={item}
-              href={`#${item}`}
-              variants={{
-                hidden: { opacity: 0, y: -20 },
-                visible: { opacity: 1, y: 0 }
-              }}
-              className="relative group px-4 py-2 text-white/80 hover:text-white transition-colors"
-              whileHover={{ scale: 1.1 }}
+          {/* Desktop links */}
+          <ul className="hidden items-center gap-1 rounded-full border border-white/10 bg-white/5 p-1 lg:flex">
+            {NAV_ITEMS.map((item) => {
+              const isActive = location.pathname === "/" && active === item.id;
+              return (
+                <li key={item.id}>
+                  <button
+                    onClick={() => handleNav(item.id)}
+                    className={`relative rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                      isActive ? "text-white" : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    {isActive && (
+                      <motion.span
+                        layoutId="nav-pill"
+                        className="absolute inset-0 rounded-full bg-gradient-to-r from-orange-500/25 to-pink-500/25 ring-1 ring-orange-400/40"
+                        transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                      />
+                    )}
+                    <span className="relative">{item.label}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+
+          {/* Right actions */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleDarkMode}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-gray-300 transition-colors hover:text-orange-400"
+              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
             >
-              {item.charAt(0).toUpperCase() + item.slice(1)}
-              <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-orange-400 to-orange-600 group-hover:w-full transition-all duration-300" />
-            </motion.a>
-          ))}
-          <motion.a
-            href="/resume.pdf"
-            target="_blank" 
-            rel="noopener noreferrer"
-            download="Prateek_Resume.pdf"
-            variants={{
-              hidden: { opacity: 0, scale: 0.8 },
-              visible: { opacity: 1, scale: 1 }
-            }}
-            className="px-6 py-2 bg-gradient-to-r from-orange-400 to-orange-600 text-white rounded-xl font-semibold shadow-[0_0_15px_rgba(249,115,22,0.4)]"
-            whileHover={{ scale: 1.05, boxShadow: "0 0 25px rgba(249,115,22,0.6)" }}
-          >
-            Resume
-          </motion.a>
-        </motion.div>
+              {isDark ? <FaSun /> : <FaMoon />}
+            </button>
 
-        {/* Hamburger Button */}
-        <motion.button
-          className="lg:hidden p-3 text-white bg-gray-800/60 rounded-lg border border-gray-700"
-          onClick={toggleMenu}
-          whileTap={{ scale: 0.9 }}
-        >
-          {menuOpen ? <FaTimes className="text-2xl" /> : <FaBars className="text-2xl" />}
-        </motion.button>
-      </div>
+            <a
+              href="/resume.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary keep-white hidden items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white sm:inline-flex"
+            >
+              Resume <FaArrowRight size={11} />
+            </a>
 
-      {/* Mobile Menu - positioned below navbar */}
+            {/* Hamburger */}
+            <button
+              onClick={() => setMenuOpen((o) => !o)}
+              className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 lg:hidden"
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={menuOpen}
+            >
+              <span className="relative block h-3.5 w-5">
+                <span className={`absolute left-0 top-0 h-0.5 w-5 rounded bg-current text-white transition-all duration-300 ${menuOpen ? "top-1.5 rotate-45" : ""}`} />
+                <span className={`absolute left-0 top-1.5 h-0.5 w-5 rounded bg-current text-white transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`} />
+                <span className={`absolute left-0 top-3 h-0.5 w-5 rounded bg-current text-white transition-all duration-300 ${menuOpen ? "top-1.5 -rotate-45" : ""}`} />
+              </span>
+            </button>
+          </div>
+        </nav>
+      </motion.header>
+
+      {/* Mobile menu */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
-            className="fixed inset-0 lg:hidden z-[100] bg-gray-900/95 backdrop-blur-2xl flex flex-col"
-            initial={{ opacity: 0, scale: 1.1 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.1 }}
-            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-40 flex flex-col bg-[#07070b]/95 px-6 pb-[max(6rem,calc(env(safe-area-inset-bottom)+5rem))] pt-28 backdrop-blur-xl lg:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
           >
-            {/* Header */}
-            <div className="flex justify-between items-center p-6 border-b border-white/5">
-              <div className="flex items-center space-x-4">
-                <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold text-xl">
-                  P
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white">Prateek</h3>
-                  <p className="text-xs text-gray-400">Full Stack Developer</p>
-                </div>
-              </div>
-              <button onClick={toggleMenu} className="p-3 text-white bg-white/10 rounded-full hover:bg-white/20 transition-colors">
-                <FaTimes className="text-2xl" />
-              </button>
-            </div>
+            <div className="pointer-events-none absolute -right-20 top-20 h-72 w-72 rounded-full bg-orange-500/20 blur-[100px]" />
+            <div className="pointer-events-none absolute -left-20 bottom-20 h-72 w-72 rounded-full bg-pink-500/15 blur-[100px]" />
 
-            {/* Links - Centered */}
-            <div className="flex-1 flex flex-col items-center justify-center space-y-8 p-6">
-              {["home", "about", "projects", "skills", "contact"].map((item, i) => (
-                <motion.a
-                  key={item}
-                  href={`#${item}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    toggleMenu();
-                    setTimeout(() => {
-                      const element = document.getElementById(item);
-                      if (element) {
-                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      }
-                    }, 100);
-                  }}
-                  className="text-4xl font-bold text-white/90 hover:text-orange-400 transition-colors uppercase tracking-widest"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 + 0.2 }}
+            <ul className="relative flex flex-1 flex-col justify-center gap-2">
+              {NAV_ITEMS.map((item, i) => (
+                <motion.li
+                  key={item.id}
+                  initial={{ opacity: 0, x: -30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ delay: 0.05 + i * 0.05 }}
                 >
-                  {item}
-                </motion.a>
-              ))}
-            </div>
-
-            {/* Footer / CTA */}
-            <div className="p-8 border-t border-white/5 bg-black/40">
-              <motion.a
-                href="/resume.pdf"
-                target="_blank" 
-                rel="noopener noreferrer"
-                download="Prateek_Resume.pdf"
-                className="block py-5 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-center rounded-2xl font-bold text-xl shadow-[0_10px_30px_rgba(249,115,22,0.3)] mb-8"
-                whileTap={{ scale: 0.95 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 }}
-              >
-                Download Resume
-              </motion.a>
-
-              <div className="flex justify-center gap-10">
-                {[FaGithub, FaLinkedin, FaEnvelope].map((Icon, i) => (
-                  <motion.a 
-                    key={i}
-                    href="#" 
-                    className="text-white/40 hover:text-white transition-colors"
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.8 + i * 0.1 }}
+                  <button
+                    onClick={() => handleNav(item.id)}
+                    className="group flex w-full items-baseline gap-4 py-2 text-left"
                   >
-                    <Icon className="text-3xl" />
-                  </motion.a>
-                ))}
+                    <span className="font-mono text-xs text-orange-400">0{i + 1}</span>
+                    <span className={`font-display text-4xl font-bold transition-colors sm:text-5xl ${
+                      active === item.id && location.pathname === "/" ? "text-gradient" : "text-white group-hover:text-orange-400"
+                    }`}>
+                      {item.label}
+                    </span>
+                  </button>
+                </motion.li>
+              ))}
+            </ul>
+
+            <motion.div
+              className="relative space-y-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35 }}
+            >
+              <a
+                href="/resume.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary keep-white flex items-center justify-center gap-2 rounded-2xl py-4 text-lg font-semibold text-white"
+              >
+                Download Resume <FaArrowRight size={14} />
+              </a>
+              <div className="flex justify-center gap-4">
+                {socialLinks.map((s) => {
+                  const Icon = SOCIAL_ICONS[s.icon];
+                  return (
+                    <a
+                      key={s.label}
+                      href={s.href}
+                      target={s.href.startsWith("mailto") ? undefined : "_blank"}
+                      rel="noopener noreferrer"
+                      aria-label={s.label}
+                      className="flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-xl text-gray-300 transition-colors hover:text-orange-400"
+                    >
+                      <Icon />
+                    </a>
+                  );
+                })}
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.nav>
+    </>
   );
 }

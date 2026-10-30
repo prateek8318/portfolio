@@ -63,5 +63,5 @@ export const personalInfo = {
   email: "prateekpandey2580@gmail.com",
   phone: "+91 7388437791",
   location: "Varanasi, Uttar Pradesh, India",
-  copyright: "© 2025 Prateek Kumar Pandey. All rights reserved."
+  copyright: `© ${new Date().getFullYear()} Prateek Kumar Pandey. All rights reserved.`
 };

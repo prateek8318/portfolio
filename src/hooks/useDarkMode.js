@@ -1,33 +1,40 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
+const EVENT = 'themechange';
+
+const getInitial = () => {
+  if (typeof window === 'undefined') return true;
+  const saved = localStorage.getItem('darkMode');
+  if (saved !== null) return saved === 'true';
+  return true; // Portfolio is designed dark-first
+};
+
+const apply = (isDark) => {
+  const root = document.documentElement;
+  root.classList.toggle('dark', isDark);
+  root.classList.toggle('light', !isDark);
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', isDark ? '#07070b' : '#fafaf9');
+};
+
+// Shared across every component that uses it (Navbar, CommandPalette, ...)
 export const useDarkMode = () => {
-  const [isDark, setIsDark] = useState(() => {
-    // Check localStorage and system preference
-    if (typeof window !== 'undefined') {
-      const savedMode = localStorage.getItem('darkMode');
-      if (savedMode !== null) {
-        return savedMode === 'true';
-      }
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    return true;
-  });
+  const [isDark, setIsDark] = useState(getInitial);
 
   useEffect(() => {
-    const root = document.documentElement;
-    if (isDark) {
-      root.classList.add('dark');
-      root.classList.remove('light');
-    } else {
-      root.classList.add('light');
-      root.classList.remove('dark');
-    }
-    localStorage.setItem('darkMode', isDark);
+    apply(isDark);
   }, [isDark]);
 
-  const toggleDarkMode = () => {
-    setIsDark(!isDark);
-  };
+  useEffect(() => {
+    const sync = (e) => setIsDark(e.detail);
+    window.addEventListener(EVENT, sync);
+    return () => window.removeEventListener(EVENT, sync);
+  }, []);
+
+  const toggleDarkMode = useCallback(() => {
+    const next = !document.documentElement.classList.contains('dark');
+    localStorage.setItem('darkMode', String(next));
+    window.dispatchEvent(new CustomEvent(EVENT, { detail: next }));
+  }, []);
 
   return { isDark, toggleDarkMode };
 };
