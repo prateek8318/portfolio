@@ -1,76 +1,58 @@
 import React from "react";
-import { FaHeart } from "react-icons/fa";
 import { socialLinks, personalInfo } from "../data/constants";
-import { iconMap } from "../utils/helpers";
-import { useSectionNav } from "../hooks/useSectionNav";
-
-const LINKS = [
-  { id: "about", label: "About" },
-  { id: "services", label: "Services" },
-  { id: "projects", label: "Work" },
-  { id: "skills", label: "Skills" },
-  { id: "contact", label: "Contact" },
-];
+import { useLocalTime } from "../hooks/useLocalTime";
+import { scrollToTarget } from "../hooks/useLenis";
+import { Container } from "./common/Layout";
 
 export default function Footer() {
-  const goTo = useSectionNav();
+  const time = useLocalTime();
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative border-t border-white/5 pb-[max(2rem,env(safe-area-inset-bottom))] pt-14">
-      <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
-        <div className="flex flex-col items-center gap-8 text-center md:flex-row md:items-start md:justify-between md:text-left">
-          <div className="max-w-sm">
-            <div className="mb-3 flex items-center justify-center gap-3 md:justify-start">
-              <span className="keep-white flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-pink-500 font-display text-lg font-bold text-white">
-                P
-              </span>
-              <span className="font-display text-lg font-bold text-white">{personalInfo.name}</span>
+    <footer className="relative overflow-hidden pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-16">
+      <Container>
+        <div className="grid grid-cols-2 gap-8 border-t border-line pt-6 text-[13px] md:grid-cols-4">
+          <div>
+            <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Local time</p>
+            <p className="text-muted">{time} IST, Varanasi</p>
+          </div>
+          <div>
+            <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Socials</p>
+            <div className="flex flex-wrap gap-x-4 gap-y-1">
+              {socialLinks
+                .filter((s) => s.label !== "Email")
+                .map((s) => (
+                  <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" className="link-u text-muted hover:text-fg">
+                    {s.label}
+                  </a>
+                ))}
             </div>
-            <p className="text-sm leading-relaxed text-gray-400">
-              Full Stack Developer building scalable backends, admin panels and modern web experiences.
+          </div>
+          <div>
+            <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Shortcut</p>
+            <p className="text-muted">
+              Press <kbd className="rounded border border-line px-1.5 font-mono text-[11px]">Ctrl K</kbd> to jump around
             </p>
           </div>
-
-          <nav aria-label="Footer">
-            <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2">
-              {LINKS.map((l) => (
-                <li key={l.id}>
-                  <button onClick={() => goTo(l.id)} className="text-sm text-gray-400 transition-colors hover:text-orange-400">
-                    {l.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          <div className="flex gap-2">
-            {socialLinks.map((s) => {
-              const Icon = iconMap[s.icon];
-              return (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  target={s.href.startsWith("mailto") ? undefined : "_blank"}
-                  rel="noopener noreferrer"
-                  aria-label={s.label}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-gray-400 transition-colors hover:text-orange-400"
-                >
-                  <Icon />
-                </a>
-              );
-            })}
+          <div className="md:text-right">
+            <button onClick={() => scrollToTarget(0)} className="link-u text-muted hover:text-fg">
+              Back to top ↑
+            </button>
           </div>
         </div>
+      </Container>
 
-        <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-white/5 pt-6 text-xs text-gray-500 sm:flex-row">
-          <p>© {year} {personalInfo.name}. All rights reserved.</p>
-          <p className="flex items-center gap-1.5">
-            Built with React & Tailwind <FaHeart className="text-pink-500" />
-            <span className="hidden sm:inline">· Press <kbd className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 font-mono">Ctrl K</kbd></span>
-          </p>
-        </div>
+      {/* Oversized wordmark */}
+      <div className="mt-14 select-none px-3 sm:px-6" aria-hidden="true">
+        <p className="whitespace-nowrap text-center text-[clamp(3rem,15.5vw,15rem)] leading-[0.8] tracking-[-0.06em]">
+          Prateek <span className="serif">Pandey</span>
+        </p>
       </div>
+
+      <Container className="mt-14 flex flex-col justify-between gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-faint sm:flex-row">
+        <span>© {year} {personalInfo.name}</span>
+        <span>Designed &amp; built by hand</span>
+      </Container>
     </footer>
   );
 }

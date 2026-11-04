@@ -65,3 +65,7 @@ export const personalInfo = {
   location: "Varanasi, Uttar Pradesh, India",
   copyright: `© ${new Date().getFullYear()} Prateek Kumar Pandey. All rights reserved.`
 };
+
+// WhatsApp chat link with a ready-made first message
+export const whatsappLink = (text = "Hi Prateek, I saw your portfolio and have a project to discuss.") =>
+  `https://wa.me/917388437791?text=${encodeURIComponent(text)}`;

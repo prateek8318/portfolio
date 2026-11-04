@@ -1,15 +1,48 @@
 @import "tailwindcss";
+@import "lenis/dist/lenis.css";
 
-@theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+/* ---------- Design tokens ----------
+   Colours live in CSS variables so the light theme is just a variable swap. */
+:root,
+html.dark {
+  --bg: #0c0c0b;
+  --surface: #151514;
+  --fg: #edece8;
+  --muted: #8f8e88;
+  --faint: #5c5b57;
+  --line: rgba(237, 236, 232, 0.1);
+  --accent: #ff5a1f;
+  color-scheme: dark;
+}
+
+html.light {
+  --bg: #f2f1ec;
+  --surface: #e8e7e1;
+  --fg: #141413;
+  --muted: #6a6964;
+  --faint: #9d9c96;
+  --line: rgba(20, 20, 19, 0.12);
+  --accent: #e2470f;
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
 }
 
 /* ---------- Base ---------- */
 html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 88px;
+  scroll-padding-top: 80px;
   -webkit-text-size-adjust: 100%;
   overflow-x: clip;
 }
@@ -17,238 +50,94 @@ html {
 body {
   margin: 0;
   overflow-x: clip;
-  background: #07070b;
-  color: #fff;
+  background: var(--bg);
+  color: var(--fg);
   font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv11";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.4s ease, color 0.4s ease;
 }
 
-h1, h2, h3, h4 {
-  font-family: var(--font-display);
-  letter-spacing: -0.02em;
-}
-
-img { max-width: 100%; }
+img { max-width: 100%; display: block; }
 
 ::selection {
-  background: rgba(249, 115, 22, 0.85);
+  background: var(--accent);
   color: #fff;
 }
 
 :focus-visible {
-  outline: 2px solid #fb923c;
+  outline: 1.5px solid var(--accent);
   outline-offset: 3px;
-  border-radius: 6px;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #fb923c, #ec4899);
-  border-radius: 999px;
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 999px; }
+
+/* Film grain over everything — subtle texture so flat colour doesn't feel digital */
+.grain {
+  position: fixed;
+  inset: -50%;
+  z-index: 300;
+  pointer-events: none;
+  opacity: 0.045;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 8s steps(10) infinite;
 }
-.custom-scrollbar::-webkit-scrollbar { width: 6px; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); }
+html.light .grain { opacity: 0.07; mix-blend-mode: multiply; }
+
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-3%, 2%); }
+  40% { transform: translate(2%, -4%); }
+  60% { transform: translate(-4%, -2%); }
+  80% { transform: translate(3%, 3%); }
+}
+
+/* Serif italic accents inside headings */
+.serif {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* Underline that draws in on hover */
+.link-u {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.link-u:hover,
+.link-u:focus-visible { background-size: 100% 1px; }
+
+/* Hairline-underlined form fields */
+.field {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 0.9rem 0;
+  color: var(--fg);
+  font-size: 1.05rem;
+  transition: border-color 0.3s ease;
+  border-radius: 0;
+}
+.field::placeholder { color: var(--faint); }
+.field:focus { outline: none; border-color: var(--fg); }
+
+/* Marquee */
+@keyframes marquee { to { transform: translateX(-50%); } }
+.animate-marquee { animation: marquee 40s linear infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }
-
-/* ---------- Backgrounds ---------- */
-.bg-grid {
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-  background-size: 56px 56px;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
-}
-
-.bg-noise::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.035;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/* ---------- Surfaces ---------- */
-.glass-luxury {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025));
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-
-.glass-dark {
-  background: rgba(10, 10, 16, 0.55);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-}
-
-/* Card with animated gradient border on hover */
-.card-glow {
-  position: relative;
-  isolation: isolate;
-}
-.card-glow::before {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(251, 146, 60, 0.7), rgba(236, 72, 153, 0.5), transparent 60%);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  z-index: -1;
-  pointer-events: none;
-}
-.card-glow:hover::before { opacity: 1; }
-
-/* Spotlight that follows the mouse (set --mx / --my from JS) */
-.spotlight {
-  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(251, 146, 60, 0.12), transparent 45%);
-}
-
-/* ---------- Text ---------- */
-.text-gradient {
-  background: linear-gradient(90deg, #fb923c 0%, #f472b6 50%, #fb923c 100%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: shine 6s linear infinite;
-}
-
-@keyframes shine {
-  to { background-position: 200% center; }
-}
-
-/* ---------- Buttons ---------- */
-.btn-primary {
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(135deg, #f97316, #ec4899);
-  box-shadow: 0 10px 30px -10px rgba(249, 115, 22, 0.6);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 40px -10px rgba(236, 72, 153, 0.7);
-}
-
-.btn-luxury {
-  position: relative;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;
-}
-.btn-luxury:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(251, 146, 60, 0.5);
-}
-
-.btn-primary::after,
-.btn-luxury::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  left: -120%;
-  width: 60%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
-  transform: skewX(-20deg);
-  transition: left 0.7s ease;
-}
-.btn-primary:hover::after,
-.btn-luxury:hover::after { left: 140%; }
-
-/* ---------- Animations ---------- */
-@keyframes blob {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(30px, -40px) scale(1.08); }
-  66% { transform: translate(-20px, 20px) scale(0.94); }
-}
-.animate-blob { animation: blob 14s ease-in-out infinite; }
-.animation-delay-2000 { animation-delay: 2s; }
-.animation-delay-4000 { animation-delay: 4s; }
-
-@keyframes marquee {
-  to { transform: translateX(-50%); }
-}
-.animate-marquee { animation: marquee 30s linear infinite; }
-.marquee-mask {
-  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-}
-.marquee-mask:hover .animate-marquee { animation-play-state: paused; }
-
-@keyframes spin-slow { to { transform: rotate(360deg); } }
-.animate-spin-slow { animation: spin-slow 18s linear infinite; }
-
-/* Hide the native cursor only when the custom cursor is active */
-html.has-custom-cursor,
-html.has-custom-cursor * { cursor: none !important; }
-
-/* ---------- Light mode ---------- */
-html.light { color-scheme: light; }
-html.dark { color-scheme: dark; }
-
-html.light body { background: #fafaf9; color: #0f172a; }
-html.light .bg-\[\#07070b\],
-html.light .bg-gray-950 { background-color: #fafaf9 !important; }
-html.light .bg-gray-900,
-html.light .bg-\[\#0c0c12\] { background-color: #f1f1ef !important; }
-html.light .text-white { color: #0f172a !important; }
-html.light .text-gray-200,
-html.light .text-gray-300 { color: #334155 !important; }
-html.light .text-gray-400,
-html.light .text-gray-500 { color: #64748b !important; }
-html.light .bg-white\/5,
-html.light .bg-white\/\[0\.03\] { background-color: rgba(15, 23, 42, 0.04) !important; }
-html.light .bg-white\/10 { background-color: rgba(15, 23, 42, 0.07) !important; }
-html.light .border-white\/5,
-html.light .border-white\/10,
-html.light .border-white\/15 { border-color: rgba(15, 23, 42, 0.1) !important; }
-html.light .glass-luxury {
-  background: rgba(255, 255, 255, 0.75);
-  border-color: rgba(15, 23, 42, 0.08);
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-}
-html.light .glass-dark {
-  background: rgba(255, 255, 255, 0.8);
-  border-color: rgba(15, 23, 42, 0.08);
-}
-html.light .btn-luxury { background: rgba(15, 23, 42, 0.04); border-color: rgba(15, 23, 42, 0.12); }
-html.light .bg-grid {
-  background-image:
-    linear-gradient(rgba(15, 23, 42, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
-}
-/* Keep text on gradient / colored buttons white */
-html.light .btn-primary,
-html.light .btn-primary *,
-html.light .keep-white,
-html.light .keep-white * { color: #fff !important; }
-/* Terminal stays dark in light mode */
-html.light .terminal,
-html.light .terminal .bg-gray-900 { background-color: #111117 !important; }
-html.light .terminal .text-white { color: #fff !important; }
-html.light .terminal .text-gray-400 { color: #9ca3af !important; }
-html.light .from-\[\#07070b\] { --tw-gradient-from: #fafaf9 !important; }
-html.light .bg-\[\#07070b\]\/95 { background-color: rgba(250, 250, 249, 0.96) !important; }

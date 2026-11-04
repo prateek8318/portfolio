@@ -13,7 +13,7 @@ const apply = (isDark) => {
   const root = document.documentElement;
   root.classList.toggle('dark', isDark);
   root.classList.toggle('light', !isDark);
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', isDark ? '#07070b' : '#fafaf9');
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', isDark ? '#0c0c0b' : '#f2f1ec');
 };
 
 // Shared across every component that uses it (Navbar, CommandPalette, ...)

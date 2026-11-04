@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { useDarkMode } from '../hooks/useDarkMode';
-import { useSectionNav } from '../hooks/useSectionNav';
-import { featuredProjects } from '../data/projects';
-import { FaSearch, FaHome, FaUser, FaCode, FaEnvelope, FaAdjust, FaFileDownload, FaBriefcase, FaTools, FaFolderOpen } from 'react-icons/fa';
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { useDarkMode } from "../hooks/useDarkMode";
+import { useSectionNav } from "../hooks/useSectionNav";
+import { lockScroll } from "../hooks/useLenis";
+import { featuredProjects } from "../data/projects";
+import { personalInfo, whatsappLink } from "../data/constants";
 
 export default function CommandPalette() {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,41 +16,56 @@ export default function CommandPalette() {
   const goTo = useSectionNav();
   const { toggleDarkMode } = useDarkMode();
 
-  const commands = useMemo(() => [
-    { id: 'home', name: 'Go to Home', group: 'Navigate', icon: <FaHome />, run: () => goTo('home') },
-    { id: 'about', name: 'About me', group: 'Navigate', icon: <FaUser />, run: () => goTo('about') },
-    { id: 'services', name: 'Services', group: 'Navigate', icon: <FaTools />, run: () => goTo('services') },
-    { id: 'projects', name: 'View projects', group: 'Navigate', icon: <FaBriefcase />, run: () => goTo('projects') },
-    { id: 'skills', name: 'View skills', group: 'Navigate', icon: <FaCode />, run: () => goTo('skills') },
-    { id: 'contact', name: 'Contact me', group: 'Navigate', icon: <FaEnvelope />, run: () => goTo('contact') },
-    { id: 'theme', name: 'Toggle theme', group: 'Actions', icon: <FaAdjust />, run: toggleDarkMode },
-    { id: 'resume', name: 'Open resume', group: 'Actions', icon: <FaFileDownload />, run: () => window.open('/resume.pdf', '_blank') },
-    ...featuredProjects.map((p) => ({
-      id: `p-${p.slug}`, name: p.name, group: 'Projects', icon: <FaFolderOpen />,
-      run: () => { navigate(`/project/${p.slug}`); },
-    })),
-  ], [goTo, toggleDarkMode, navigate]);
+  const commands = useMemo(
+    () => [
+      { id: "home", name: "Home", group: "Go to", run: () => goTo("home") },
+      { id: "work", name: "Selected work", group: "Go to", run: () => goTo("work") },
+      { id: "about", name: "About", group: "Go to", run: () => goTo("about") },
+      { id: "capabilities", name: "Services", group: "Go to", run: () => goTo("capabilities") },
+      { id: "engagement", name: "How to hire me", group: "Go to", run: () => goTo("engagement") },
+      { id: "faq", name: "FAQ", group: "Go to", run: () => goTo("faq") },
+      { id: "contact", name: "Start a project", group: "Go to", run: () => goTo("contact") },
+      ...featuredProjects.map((p) => ({
+        id: `p-${p.slug}`,
+        name: p.name,
+        hint: p.sector,
+        group: "Case studies",
+        run: () => navigate(`/project/${p.slug}`),
+      })),
+      { id: "whatsapp", name: "Chat on WhatsApp", group: "Actions", run: () => window.open(whatsappLink(), "_blank") },
+      { id: "email", name: "Copy email address", group: "Actions", run: () => navigator.clipboard?.writeText(personalInfo.email) },
+      { id: "theme", name: "Toggle light / dark", group: "Actions", run: toggleDarkMode },
+      { id: "resume", name: "Open résumé", group: "Actions", run: () => window.open("/resume.pdf", "_blank") },
+    ],
+    [goTo, toggleDarkMode, navigate]
+  );
 
-  const filtered = commands.filter((c) => c.name.toLowerCase().includes(query.toLowerCase()));
+  const filtered = commands.filter((c) => `${c.name} ${c.hint || ""}`.toLowerCase().includes(query.toLowerCase()));
 
-  const runCommand = (cmd) => {
+  const run = (cmd) => {
     setIsOpen(false);
-    setTimeout(cmd.run, 50);
+    setTimeout(cmd.run, 60);
   };
 
   useEffect(() => {
     const onKey = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setIsOpen((o) => !o);
       }
-      if (e.key === 'Escape') setIsOpen(false);
+      if (e.key === "Escape") setIsOpen(false);
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    const onOpen = () => setIsOpen(true);
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("open-palette", onOpen);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("open-palette", onOpen);
+    };
   }, []);
 
   useEffect(() => {
+    lockScroll(isOpen);
     if (isOpen) setTimeout(() => inputRef.current?.focus(), 50);
     else setQuery("");
   }, [isOpen]);
@@ -57,9 +73,15 @@ export default function CommandPalette() {
   useEffect(() => setSelected(0), [query]);
 
   const onInputKey = (e) => {
-    if (e.key === 'ArrowDown') { e.preventDefault(); setSelected((s) => Math.min(s + 1, filtered.length - 1)); }
-    if (e.key === 'ArrowUp') { e.preventDefault(); setSelected((s) => Math.max(s - 1, 0)); }
-    if (e.key === 'Enter' && filtered[selected]) runCommand(filtered[selected]);
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSelected((s) => Math.min(s + 1, filtered.length - 1));
+    }
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSelected((s) => Math.max(s - 1, 0));
+    }
+    if (e.key === "Enter" && filtered[selected]) run(filtered[selected]);
   };
 
   let lastGroup = null;
@@ -73,48 +95,51 @@ export default function CommandPalette() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsOpen(false)}
-            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] bg-bg/70 backdrop-blur-sm"
           />
-          <div className="pointer-events-none fixed inset-0 z-[101] flex items-start justify-center p-4 pt-[12vh]">
+          <div className="pointer-events-none fixed inset-0 z-[101] flex items-start justify-center p-4 pt-[14vh]">
             <motion.div
-              initial={{ opacity: 0, scale: 0.96, y: -12 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96, y: -12 }}
-              className="pointer-events-auto w-full max-w-xl overflow-hidden rounded-2xl border border-white/10 bg-[#0c0c12] shadow-2xl"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              className="pointer-events-auto w-full max-w-lg overflow-hidden rounded-xl border border-line bg-surface shadow-2xl shadow-black/30"
               role="dialog"
-              aria-label="Command palette"
+              aria-label="Command menu"
             >
-              <div className="flex items-center gap-3 border-b border-white/5 px-4 py-3.5">
-                <FaSearch className="text-gray-500" />
+              <div className="flex items-center gap-3 border-b border-line px-4">
                 <input
                   ref={inputRef}
                   type="text"
-                  placeholder="Search sections, projects, actions..."
+                  placeholder="Type a command or search…"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={onInputKey}
-                  className="w-full bg-transparent text-base text-white placeholder-gray-500 focus:outline-none"
+                  className="w-full bg-transparent py-4 text-[15px] text-fg placeholder:text-faint focus:outline-none"
                 />
-                <kbd className="rounded border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-[11px] text-gray-500">ESC</kbd>
+                <kbd className="font-mono text-[10px] text-faint">ESC</kbd>
               </div>
 
-              <div className="custom-scrollbar max-h-[60vh] overflow-y-auto p-2">
-                {filtered.length === 0 && <div className="px-4 py-10 text-center text-sm text-gray-500">No results found.</div>}
+              <div className="max-h-[55vh] overflow-y-auto p-2" data-lenis-prevent>
+                {filtered.length === 0 && <div className="px-4 py-10 text-center text-sm text-faint">Nothing matches.</div>}
                 {filtered.map((cmd, i) => {
                   const header = cmd.group !== lastGroup ? cmd.group : null;
                   lastGroup = cmd.group;
+                  const on = selected === i;
                   return (
                     <React.Fragment key={cmd.id}>
-                      {header && <div className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-gray-500">{header}</div>}
+                      {header && (
+                        <div className="px-3 pb-1.5 pt-3 font-mono text-[10px] uppercase tracking-[0.14em] text-faint">{header}</div>
+                      )}
                       <button
-                        onClick={() => runCommand(cmd)}
+                        onClick={() => run(cmd)}
                         onMouseEnter={() => setSelected(i)}
-                        className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${
-                          selected === i ? 'bg-white/10 text-white' : 'text-gray-300'
+                        className={`flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left text-[14px] transition-colors ${
+                          on ? "bg-fg/[0.07] text-fg" : "text-muted"
                         }`}
                       >
-                        <span className={selected === i ? 'text-orange-400' : 'text-gray-500'}>{cmd.icon}</span>
-                        {cmd.name}
+                        <span>{cmd.name}</span>
+                        <span className="text-[12px] text-faint">{on ? "↵" : cmd.hint}</span>
                       </button>
                     </React.Fragment>
                   );

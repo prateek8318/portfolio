@@ -1,189 +1,240 @@
-import React, { useEffect } from 'react';
-import { useParams, Link, Navigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { FaArrowLeft, FaArrowRight, FaGithub, FaExternalLinkAlt, FaLock } from 'react-icons/fa';
-import { featuredProjects } from '../data/projects';
-import { useSEO } from '../hooks/useSEO';
-import { useSectionNav } from '../hooks/useSectionNav';
+import React, { useEffect, useRef } from "react";
+import { useParams, Link, Navigate } from "react-router-dom";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { featuredProjects } from "../data/projects";
+import { whatsappLink } from "../data/constants";
+import { useSEO } from "../hooks/useSEO";
+import { scrollToTarget } from "../hooks/useLenis";
+import { Container, Reveal, MaskLines } from "../components/common/Layout";
+import Footer from "../components/Footer";
 
-const FALLBACK_IMG = "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop";
+const EASE = [0.22, 1, 0.36, 1];
 
-const reveal = {
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-60px" },
-  transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
-};
+// Turns the simple mermaid-style strings in projects.js into a list of edges
+function parseArchitecture(src) {
+  const labels = {};
+  const clean = (l) => l.trim().replace(/^\((.*)\)$/, "$1");
+  for (const m of src.matchAll(/(\w+)\[(.+?)\](?=\s|$|<|-)/g)) labels[m[1]] = clean(m[2]);
+  const edges = [];
+  for (const line of src.split("\n").slice(1)) {
+    const stripped = line.replace(/\[(.+?)\](?=\s|$|<|-)/g, "");
+    const m = stripped.match(/(\w+)\s*(<-->|-->)\s*(?:\|([^|]+)\|\s*)?(\w+)/);
+    if (m) edges.push({ from: labels[m[1]] || m[1], to: labels[m[4]] || m[4], both: m[2] === "<-->", via: m[3] });
+  }
+  return edges;
+}
 
-function Section({ num, title, children }) {
+function Block({ label, children }) {
   return (
-    <motion.section {...reveal}>
-      <h2 className="mb-4 flex items-center gap-3 font-display text-xl font-bold text-white sm:text-2xl">
-        <span className="font-mono text-sm text-orange-400">{num}</span>
-        {title}
-      </h2>
-      {children}
-    </motion.section>
+    <Reveal className="grid grid-cols-12 gap-x-6 gap-y-4 border-t border-line py-10 md:py-14">
+      <h2 className="col-span-12 font-mono text-[11px] uppercase tracking-[0.14em] text-faint md:col-span-3">{label}</h2>
+      <div className="col-span-12 md:col-span-9 lg:col-span-7">{children}</div>
+    </Reveal>
   );
 }
 
-const HtmlCard = ({ html }) => (
+const Prose = ({ html }) => (
   <div
-    className="glass-luxury rounded-2xl p-5 text-base leading-relaxed text-gray-300 sm:p-6 sm:text-lg [&_strong]:text-white"
+    className="text-[17px] leading-[1.7] text-muted md:text-lg [&_strong]:font-normal [&_strong]:text-fg"
     dangerouslySetInnerHTML={{ __html: html }}
   />
 );
 
 export default function ProjectDetails() {
   const { slug } = useParams();
-  const goTo = useSectionNav();
   const index = featuredProjects.findIndex((p) => p.slug === slug);
   const project = featuredProjects[index];
+  const mediaRef = useRef(null);
+  const { scrollYProgress } = useScroll({ target: mediaRef, offset: ["start end", "end start"] });
+  const scale = useTransform(scrollYProgress, [0, 0.5], [1.12, 1]);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    scrollToTarget(0, { immediate: true });
   }, [slug]);
 
   useSEO({
-    title: project ? `${project.name} - Case Study` : 'Project',
+    title: project ? `${project.name} — Case study` : "Project",
     description: project?.description,
   });
 
   if (!project) return <Navigate to="/" replace />;
 
-  const prev = featuredProjects[(index - 1 + featuredProjects.length) % featuredProjects.length];
   const next = featuredProjects[(index + 1) % featuredProjects.length];
   const cs = project.caseStudy;
+  const edges = parseArchitecture(cs.architecture);
+  const name = project.name.replace(" Admin Panel", "");
 
   return (
     <motion.div
-      className="relative min-h-screen pb-20 pt-28 md:pt-32"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, transition: { duration: 0.25 } }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { duration: 0.3 } }}
+      className="pt-24 md:pt-28"
     >
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[28rem] overflow-hidden">
-        <div className="bg-grid absolute inset-0" />
-        <div className="absolute -right-20 top-10 h-80 w-80 rounded-full bg-orange-500/15 blur-[120px]" />
-      </div>
-
-      <div className="relative mx-auto max-w-4xl px-5 sm:px-6">
-        {/* Header */}
-        <button
-          onClick={() => goTo('projects')}
-          className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-orange-400 transition-colors hover:text-orange-300"
-        >
-          <FaArrowLeft size={12} /> Back to all projects
-        </button>
-
-        <div className="mb-4 flex flex-wrap gap-2">
-          {project.tech.map((t) => (
-            <span key={t} className="rounded-md border border-orange-500/20 bg-orange-500/10 px-2.5 py-1 font-mono text-xs text-orange-300">
-              {t}
-            </span>
-          ))}
-          {project.isPrivate && (
-            <span className="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-gray-400">
-              <FaLock size={10} /> Private codebase
-            </span>
-          )}
+      <Container>
+        <div className="flex items-center justify-between border-t border-line pt-4 font-mono text-[11px] uppercase tracking-[0.14em] text-muted">
+          <Link to="/" state={{ to: "work" }} className="link-u hover:text-fg">
+            ← All work
+          </Link>
+          <span className="text-faint">
+            Case study {String(index + 1).padStart(2, "0")} / {String(featuredProjects.length).padStart(2, "0")}
+          </span>
         </div>
 
-        <h1 className="mb-4 font-display text-4xl font-bold leading-tight text-white sm:text-5xl md:text-6xl">{project.name}</h1>
-        <p className="max-w-2xl text-lg leading-relaxed text-gray-400 sm:text-xl">{project.description}</p>
+        <h1 className="mt-16 text-[clamp(3rem,10vw,10rem)] leading-[0.9] tracking-[-0.055em] md:mt-24">
+          <MaskLines animateOnMount delay={0.1} lines={[name]} />
+        </h1>
 
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          {project.liveUrl && (
-            <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="btn-primary keep-white inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-white">
-              <FaExternalLinkAlt size={12} /> {project.isPlayable ? 'Play in new tab' : 'Visit live site'}
-            </a>
-          )}
-          {project.githubUrl && (
-            <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="btn-luxury inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-white">
-              <FaGithub /> Source code
-            </a>
-          )}
-        </div>
-
-        {/* Hero media */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.97 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.15, duration: 0.6 }}
-          className="relative my-12 aspect-video overflow-hidden rounded-3xl border border-white/10 bg-gray-900 shadow-2xl md:my-16"
+        <motion.p
+          className="mt-8 max-w-2xl text-lg leading-relaxed text-muted md:text-xl"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.35, ease: EASE }}
         >
+          {project.description}
+        </motion.p>
+
+        <motion.dl
+          className="mt-14 grid grid-cols-2 gap-x-6 gap-y-6 border-t border-line pt-5 text-[14px] md:grid-cols-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.9, delay: 0.5 }}
+        >
+          <div>
+            <dt className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Sector</dt>
+            <dd>{project.sector}</dd>
+          </div>
+          <div>
+            <dt className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-faint">My part</dt>
+            <dd>{project.role}</dd>
+          </div>
+          <div>
+            <dt className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Stack</dt>
+            <dd className="text-muted">{project.tech.join(", ")}</dd>
+          </div>
+          <div>
+            <dt className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Link</dt>
+            <dd className="space-y-1">
+              {project.liveUrl && (
+                <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="link-u block w-fit">
+                  {project.isPlayable ? "Play it" : "Visit live site"} ↗
+                </a>
+              )}
+              {project.githubUrl && (
+                <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="link-u block w-fit">
+                  Source ↗
+                </a>
+              )}
+              {project.isPrivate && <span className="block text-faint">Codebase under NDA</span>}
+            </dd>
+          </div>
+        </motion.dl>
+      </Container>
+
+      {/* Hero media */}
+      <div className="mt-16 px-3 sm:px-6 md:mt-24 lg:px-12">
+        <div ref={mediaRef} className="relative mx-auto aspect-[16/10] max-w-[1400px] overflow-hidden bg-surface md:aspect-[16/9]">
           {project.isPlayable && project.liveUrl ? (
-            <>
-              <span className="keep-white pointer-events-none absolute right-3 top-3 z-10 rounded-full bg-emerald-500/90 px-3 py-1 text-xs font-bold text-white">
-                Interactive demo 🎮
-              </span>
-              <iframe src={project.liveUrl} title={project.name} className="h-full w-full border-0" allowFullScreen loading="lazy" />
-            </>
+            <iframe src={project.liveUrl} title={project.name} className="h-full w-full border-0" loading="lazy" />
           ) : (
-            <img
-              src={project.image}
-              alt={project.name}
-              className="h-full w-full object-cover"
-              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = FALLBACK_IMG; }}
-            />
+            <motion.img style={{ scale }} src={project.image} alt={`${project.name} screenshot`} className="h-full w-full object-cover" />
           )}
-        </motion.div>
-
-        {/* Case study */}
-        <div className="space-y-12 md:space-y-16">
-          <Section num="01" title="Overview"><HtmlCard html={cs.problem} /></Section>
-          <Section num="02" title="Objective"><HtmlCard html={cs.objective} /></Section>
-
-          <Section num="03" title="Architecture">
-            <pre className="terminal custom-scrollbar overflow-x-auto rounded-2xl border border-white/10 bg-[#0c0c12] p-5 font-mono text-xs leading-relaxed text-emerald-400 sm:p-6 sm:text-sm">
-              {cs.architecture}
-            </pre>
-          </Section>
-
-          <Section num="04" title="My contribution"><HtmlCard html={cs.contribution} /></Section>
-
-          <Section num="05" title="Technical challenges">
-            <ul className="space-y-3">
-              {cs.challenges.map((c, i) => (
-                <li key={i} className="glass-luxury flex gap-4 rounded-2xl p-4 sm:p-5">
-                  <span className="keep-white flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-pink-500 font-mono text-xs font-bold text-white">
-                    {i + 1}
-                  </span>
-                  <span className="text-gray-300">{c}</span>
-                </li>
-              ))}
-            </ul>
-          </Section>
-
-          <Section num="06" title="Results & impact">
-            <div className="rounded-2xl border border-orange-500/20 bg-gradient-to-br from-orange-500/10 to-pink-500/10 p-6 text-center text-lg font-medium leading-relaxed text-white sm:p-8 sm:text-xl">
-              “{cs.result}”
-            </div>
-          </Section>
-        </div>
-
-        {/* Prev / next */}
-        <nav className="mt-16 grid grid-cols-1 gap-4 border-t border-white/5 pt-10 sm:grid-cols-2" aria-label="More projects">
-          <Link to={`/project/${prev.slug}`} className="glass-luxury card-glow group rounded-2xl p-5">
-            <span className="mb-1 flex items-center gap-2 text-xs uppercase tracking-wider text-gray-500">
-              <FaArrowLeft size={10} /> Previous
-            </span>
-            <span className="font-display text-lg font-bold text-white transition-colors group-hover:text-orange-400">{prev.name}</span>
-          </Link>
-          <Link to={`/project/${next.slug}`} className="glass-luxury card-glow group rounded-2xl p-5 text-right">
-            <span className="mb-1 flex items-center justify-end gap-2 text-xs uppercase tracking-wider text-gray-500">
-              Next <FaArrowRight size={10} />
-            </span>
-            <span className="font-display text-lg font-bold text-white transition-colors group-hover:text-orange-400">{next.name}</span>
-          </Link>
-        </nav>
-
-        <div className="mt-10 text-center">
-          <button onClick={() => goTo('contact')} className="btn-primary keep-white inline-flex items-center gap-2 rounded-xl px-7 py-3.5 font-semibold text-white">
-            Want something similar? Let's talk <FaArrowRight size={12} />
-          </button>
         </div>
       </div>
+
+      <Container className="mt-20 md:mt-32">
+        <Block label="Overview">
+          <Prose html={cs.problem} />
+        </Block>
+        <Block label="The brief">
+          <Prose html={cs.objective} />
+        </Block>
+
+        <Block label="Architecture">
+          <ul className="border-b border-line">
+            {edges.map((e, i) => (
+              <li key={i} className="grid grid-cols-12 items-center gap-3 border-t border-line py-3.5 text-[15px]">
+                <span className="col-span-5">{e.from}</span>
+                <span className="col-span-2 text-center font-mono text-[11px] text-faint">
+                  {e.both ? "⟷" : "→"}
+                  {e.via && <span className="block text-[9px] uppercase tracking-[0.12em]">{e.via}</span>}
+                </span>
+                <span className="col-span-5 text-muted">{e.to}</span>
+              </li>
+            ))}
+          </ul>
+        </Block>
+
+        <Block label="What I did">
+          <Prose html={cs.contribution} />
+        </Block>
+
+        <Block label="Hard parts">
+          <ol className="space-y-6">
+            {cs.challenges.map((c, i) => (
+              <li key={i} className="grid grid-cols-12 gap-3 text-[17px] leading-relaxed md:text-lg">
+                <span className="col-span-1 font-mono text-[11px] leading-[2.4] text-faint">0{i + 1}</span>
+                <span className="col-span-11">{c}</span>
+              </li>
+            ))}
+          </ol>
+        </Block>
+
+        <Block label="Outcome">
+          <p className="text-[clamp(1.5rem,2.8vw,2.4rem)] leading-[1.25] tracking-[-0.02em]">
+            <span className="serif text-accent">“</span>
+            {cs.result}
+            <span className="serif text-accent">”</span>
+          </p>
+        </Block>
+      </Container>
+
+      {/* Hire CTA */}
+      <Container className="mt-16 md:mt-24">
+        <Reveal className="flex flex-col gap-8 bg-surface p-8 sm:p-12 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-faint">Have a similar idea?</p>
+            <p className="mt-4 max-w-xl text-[clamp(1.75rem,3.4vw,3rem)] leading-[1.05] tracking-[-0.035em]">
+              Need something like <span className="serif">{name}</span>?
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-[15px]">
+            <Link
+              to="/"
+              state={{ to: "contact" }}
+              className="group inline-flex items-center gap-3 rounded-full bg-fg px-6 py-3 text-bg transition-transform hover:scale-[1.03]"
+            >
+              Start a project
+              <span className="transition-transform duration-500 group-hover:translate-x-1">→</span>
+            </Link>
+            <a
+              href={whatsappLink(`Hi Prateek, I saw your ${name} case study and want something similar.`)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="link-u text-muted hover:text-fg"
+            >
+              WhatsApp ↗
+            </a>
+          </div>
+        </Reveal>
+      </Container>
+
+      {/* Next project */}
+      <Container className="mt-16 md:mt-24">
+        <Link to={`/project/${next.slug}`} className="group block border-t border-line pt-6">
+          <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-faint">Next case study</span>
+          <div className="mt-6 flex items-end justify-between gap-6">
+            <span className="text-[clamp(2.5rem,8vw,8rem)] leading-[0.9] tracking-[-0.05em] transition-transform duration-700 ease-out group-hover:translate-x-4">
+              {next.name.replace(" Admin Panel", "")}
+            </span>
+            <span className="mb-2 text-4xl text-faint transition-all duration-500 group-hover:-rotate-45 group-hover:text-accent md:text-6xl">
+              →
+            </span>
+          </div>
+        </Link>
+      </Container>
+
+      <Footer />
     </motion.div>
   );
 }

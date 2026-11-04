@@ -4,27 +4,21 @@ import { AnimatePresence } from "framer-motion";
 import CommandPalette from "./components/CommandPalette";
 import Navbar from "./components/Navbar";
 import Home from "./components/Home";
-import LoadingScreen from "./components/LoadingScreen";
-import CustomCursor from "./components/CustomCursor";
-import Chatbot from "./components/Chatbot";
+import Intro from "./components/Intro";
+import HireBar from "./components/HireBar";
+import { useLenis } from "./hooks/useLenis";
 
 const ProjectDetails = React.lazy(() => import("./pages/ProjectDetails"));
 
-const PageFallback = () => (
-  <div className="flex min-h-screen items-center justify-center">
-    <div className="h-8 w-8 animate-spin rounded-full border-2 border-orange-400 border-t-transparent" />
-  </div>
-);
-
 const AppContent = () => {
   const location = useLocation();
+  useLenis();
 
   return (
     <>
-      <CustomCursor />
       <Navbar />
-      <main className="bg-noise relative">
-        <React.Suspense fallback={<PageFallback />}>
+      <main className="relative">
+        <React.Suspense fallback={<div className="min-h-screen" />}>
           <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
               <Route path="/" element={<Home />} />
@@ -33,7 +27,7 @@ const AppContent = () => {
           </AnimatePresence>
         </React.Suspense>
       </main>
-      <Chatbot />
+      <HireBar />
       <CommandPalette />
     </>
   );
@@ -42,8 +36,9 @@ const AppContent = () => {
 export default function App() {
   return (
     <Router>
-      <LoadingScreen />
-      <div className="min-h-screen bg-[#07070b] font-sans text-white antialiased">
+      <Intro />
+      <div className="grain" aria-hidden="true" />
+      <div className="min-h-screen bg-bg font-sans text-fg antialiased">
         <AppContent />
       </div>
     </Router>

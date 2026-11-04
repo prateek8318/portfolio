@@ -1,190 +1,161 @@
 import React, { useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { FaGithub, FaExternalLinkAlt, FaLock, FaArrowRight, FaGamepad } from "react-icons/fa";
+import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 import { Link } from "react-router-dom";
 import { featuredProjects } from "../data/projects";
-import { SectionWrapper, Container, SectionHeader } from "./common/Layout";
+import { Container, Reveal, MaskLines } from "./common/Layout";
 
 const FILTERS = ["All", "Client", "Personal"];
-const FALLBACK_IMG = "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop";
-const INITIAL_COUNT = 5; // featured card takes 2 slots -> fills two clean rows
+const EASE = [0.22, 1, 0.36, 1];
 
-function ProjectCard({ project, featured, index }) {
+// Floating image that follows the cursor and slides between project shots
+function Preview({ items, index, x, y }) {
   return (
-    <motion.article
-      layout
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.5, delay: (index % 3) * 0.06, ease: [0.22, 1, 0.36, 1] }}
-      className={`glass-luxury card-glow group flex flex-col overflow-hidden rounded-3xl ${
-        featured ? "md:col-span-2 lg:grid lg:grid-cols-2" : ""
-      }`}
+    <motion.div
+      className="pointer-events-none fixed left-0 top-0 z-30 hidden h-[230px] w-[340px] overflow-hidden lg:block"
+      style={{ x, y, translateX: "-50%", translateY: "-50%" }}
+      initial={{ scale: 0, opacity: 0 }}
+      animate={{ scale: index === null ? 0 : 1, opacity: index === null ? 0 : 1 }}
+      transition={{ duration: 0.4, ease: EASE }}
     >
-      {/* Image */}
+      <motion.div
+        className="h-full w-full"
+        animate={{ y: `${-(index ?? 0) * 100}%` }}
+        transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
+      >
+        {items.map((p) => (
+          <img key={p.id} src={p.image} alt="" className="h-full w-full object-cover" />
+        ))}
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function Row({ project, i, hovered, setHovered }) {
+  const dim = hovered !== null && hovered !== i;
+  return (
+    <motion.li
+      layout
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.4 }}
+      className="border-b border-line"
+    >
       <Link
         to={`/project/${project.slug}`}
-        className={`relative block overflow-hidden bg-gray-900 ${featured ? "aspect-video lg:aspect-auto lg:h-full lg:min-h-[340px]" : "aspect-video"}`}
-        aria-label={`Read ${project.name} case study`}
+        onMouseEnter={() => setHovered(i)}
+        onMouseLeave={() => setHovered(null)}
+        className={`group block py-6 transition-opacity duration-500 md:py-8 ${dim ? "lg:opacity-30" : ""}`}
       >
-        <img
-          src={project.image}
-          alt={project.name}
-          loading="lazy"
-          onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = FALLBACK_IMG; }}
-          className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
-
-        <div className="absolute left-3 top-3 flex gap-2">
-          {featured && (
-            <span className="keep-white rounded-full bg-gradient-to-r from-orange-500 to-pink-500 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">
-              Featured
-            </span>
-          )}
-          {project.isPlayable && (
-            <span className="keep-white inline-flex items-center gap-1.5 rounded-full bg-emerald-500/90 px-3 py-1 text-[11px] font-bold text-white">
-              <FaGamepad /> Playable
-            </span>
-          )}
+        {/* Mobile / tablet thumbnail */}
+        <div className="mb-5 aspect-[16/10] overflow-hidden bg-surface lg:hidden">
+          <img src={project.image} alt={project.name} loading="lazy" className="h-full w-full object-cover" />
         </div>
-        {project.isPrivate && (
-          <span className="keep-white absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/50 px-3 py-1 text-[11px] font-medium text-white backdrop-blur">
-            <FaLock className="text-orange-400" size={10} /> Private
+
+        <div className="grid grid-cols-12 items-baseline gap-x-4 gap-y-2">
+          <span className="col-span-2 font-mono text-[11px] text-faint md:col-span-1">
+            {String(i + 1).padStart(2, "0")}
           </span>
-        )}
+          <div className="col-span-10 transition-transform duration-500 ease-out group-hover:translate-x-3 md:col-span-5">
+            <h3 className="text-[clamp(1.75rem,4vw,3.25rem)] leading-[1.05] tracking-[-0.035em]">
+              {project.name.replace(" Admin Panel", "")}
+              {project.isPrivate && <span className="ml-3 align-middle font-mono text-[10px] uppercase tracking-[0.14em] text-faint">NDA</span>}
+            </h3>
+            {project.impact && (
+              <p className="mt-2 flex items-center gap-2 text-[13px] text-muted">
+                <span className="h-1 w-1 shrink-0 rounded-full bg-accent" />
+                {project.impact}
+              </p>
+            )}
+          </div>
+          <span className="col-span-5 col-start-3 text-sm text-muted md:col-span-2 md:col-start-auto">{project.sector}</span>
+          <span className="col-span-5 text-sm text-muted md:col-span-3">{project.role}</span>
+          <span className="hidden text-right text-xl text-faint transition-all duration-500 group-hover:-rotate-45 group-hover:text-accent md:col-span-1 md:block">
+            →
+          </span>
+        </div>
       </Link>
-
-      {/* Content */}
-      <div className={`flex flex-1 flex-col p-5 sm:p-6 ${featured ? "lg:p-8" : ""}`}>
-        <div className="mb-3 flex flex-wrap gap-1.5">
-          {project.tech.slice(0, featured ? 5 : 4).map((t) => (
-            <span key={t} className="rounded-md border border-orange-500/20 bg-orange-500/10 px-2 py-0.5 font-mono text-[11px] text-orange-300">
-              {t}
-            </span>
-          ))}
-        </div>
-
-        <h3 className={`mb-2 font-display font-bold text-white ${featured ? "text-2xl sm:text-3xl" : "text-xl"}`}>
-          {project.name}
-        </h3>
-        <p className={`mb-6 flex-1 text-sm leading-relaxed text-gray-400 sm:text-base ${featured ? "" : "line-clamp-3"}`}>
-          {project.description}
-        </p>
-
-        <div className="flex items-center gap-2">
-          <Link
-            to={`/project/${project.slug}`}
-            className="btn-primary keep-white inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white sm:flex-none"
-          >
-            Case Study <FaArrowRight size={11} />
-          </Link>
-          {project.liveUrl && (
-            <a
-              href={project.liveUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-gray-300 transition-colors hover:border-orange-400/40 hover:text-orange-400"
-              aria-label={`Open ${project.name} live`}
-              title="Live site"
-            >
-              <FaExternalLinkAlt size={13} />
-            </a>
-          )}
-          {project.githubUrl && (
-            <a
-              href={project.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-gray-300 transition-colors hover:border-orange-400/40 hover:text-orange-400"
-              aria-label={`${project.name} source code`}
-            >
-              <FaGithub size={15} />
-            </a>
-          )}
-        </div>
-      </div>
-    </motion.article>
+    </motion.li>
   );
 }
 
 export default function Projects() {
   const [filter, setFilter] = useState("All");
-  const [showAll, setShowAll] = useState(false);
+  const [hovered, setHovered] = useState(null);
 
-  const filtered = useMemo(
+  const list = useMemo(
     () => (filter === "All" ? featuredProjects : featuredProjects.filter((p) => p.category === filter)),
     [filter]
   );
-  const visible = showAll ? filtered : filtered.slice(0, INITIAL_COUNT);
+
+  const mx = useMotionValue(0);
+  const my = useMotionValue(0);
+  const x = useSpring(mx, { stiffness: 220, damping: 26, mass: 0.6 });
+  const y = useSpring(my, { stiffness: 220, damping: 26, mass: 0.6 });
 
   return (
-    <SectionWrapper id="projects">
-      <div className="pointer-events-none absolute right-0 top-40 h-[28rem] w-[28rem] rounded-full bg-orange-500/10 blur-[130px]" />
+    <section
+      id="work"
+      className="relative py-24 md:py-36"
+      onMouseMove={(e) => {
+        mx.set(e.clientX);
+        my.set(e.clientY);
+      }}
+    >
       <Container>
-        <SectionHeader
-          eyebrow="Portfolio"
-          title="Featured"
-          highlight="Work"
-          subtitle="Production apps I've engineered for real clients — plus a few things I built for fun."
-        />
-
-        {/* Filters */}
-        <div className="mb-10 flex justify-center">
-          <div className="inline-flex rounded-full border border-white/10 bg-white/5 p-1">
+        <div className="mb-12 flex flex-col justify-between gap-8 border-t border-line pt-5 md:mb-16 md:flex-row md:items-start">
+          <Reveal className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted">
+            <span className="text-faint">01</span>
+            <span className="mx-3 text-faint">/</span>Selected work
+          </Reveal>
+          <div className="flex gap-5 text-sm" role="tablist" aria-label="Filter projects">
             {FILTERS.map((f) => {
               const count = f === "All" ? featuredProjects.length : featuredProjects.filter((p) => p.category === f).length;
+              const on = filter === f;
               return (
                 <button
                   key={f}
-                  onClick={() => { setFilter(f); setShowAll(false); }}
-                  className={`relative rounded-full px-4 py-2 text-sm font-medium transition-colors sm:px-5 ${
-                    filter === f ? "text-white" : "text-gray-400 hover:text-white"
-                  }`}
+                  role="tab"
+                  aria-selected={on}
+                  onClick={() => setFilter(f)}
+                  className={`transition-colors ${on ? "text-fg" : "text-faint hover:text-muted"}`}
                 >
-                  {filter === f && (
-                    <motion.span
-                      layoutId="project-filter"
-                      className="absolute inset-0 rounded-full bg-gradient-to-r from-orange-500/30 to-pink-500/30 ring-1 ring-orange-400/40"
-                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                    />
-                  )}
-                  <span className="relative">
-                    {f} <span className="text-xs opacity-60">{count}</span>
-                  </span>
+                  {f}
+                  <sup className="ml-0.5 font-mono text-[10px]">{count}</sup>
                 </button>
               );
             })}
           </div>
         </div>
 
-        <motion.div layout className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <h2 className="mb-14 max-w-4xl text-[clamp(2rem,4.5vw,4rem)] leading-[1.02] tracking-[-0.04em] md:mb-20">
+          <MaskLines
+            lines={[
+              <>Products that went live,</>,
+              <>
+                not <span className="serif text-muted">just</span> side projects.
+              </>,
+            ]}
+          />
+        </h2>
+
+        <div className="hidden grid-cols-12 gap-x-4 border-b border-line pb-3 font-mono text-[10px] uppercase tracking-[0.14em] text-faint md:grid">
+          <span className="col-span-1">No.</span>
+          <span className="col-span-5">Project</span>
+          <span className="col-span-2">Sector</span>
+          <span className="col-span-3">What I built</span>
+        </div>
+
+        <ul onMouseLeave={() => setHovered(null)}>
           <AnimatePresence mode="popLayout">
-            {visible.map((project, i) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                index={i}
-                featured={filter === "All" && i === 0}
-              />
+            {list.map((p, i) => (
+              <Row key={p.id} project={p} i={i} hovered={hovered} setHovered={setHovered} />
             ))}
           </AnimatePresence>
-        </motion.div>
-
-        {filtered.length > INITIAL_COUNT && (
-          <div className="mt-10 text-center">
-            <button
-              onClick={() => {
-                if (showAll) document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
-                setShowAll((s) => !s);
-              }}
-              className="btn-luxury inline-flex items-center gap-2 rounded-xl px-7 py-3 font-semibold text-white"
-            >
-              {showAll ? "Show less" : `Show all ${filtered.length} projects`}
-            </button>
-          </div>
-        )}
+        </ul>
       </Container>
-    </SectionWrapper>
+
+      <Preview items={list} index={hovered} x={x} y={y} />
+    </section>
   );
 }

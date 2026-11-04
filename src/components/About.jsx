@@ -1,114 +1,97 @@
-import React from "react";
-import { motion } from "framer-motion";
-import { FaMapMarkerAlt, FaCode, FaServer, FaMobileAlt } from "react-icons/fa";
-import Lottie from "./common/Lottie";
-import { SectionWrapper, Container, SectionHeader } from "./common/Layout";
-import TerminalIntro from "./TerminalIntro";
+import React, { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { Container, Reveal, SectionLabel } from "./common/Layout";
 
-const STATS = [
-  { number: "2.5+", label: "Years of experience", icon: "💎" },
-  { number: "15+", label: "Projects delivered", icon: "🚀" },
-  { number: "9", label: "Featured case studies", icon: "📁" },
-  { number: "100%", label: "Client satisfaction", icon: "⭐" },
+const STATEMENT =
+  "Most of my work happens where users never look — APIs, sockets, data models and background jobs — plus the admin tools that let a business actually run on top of them. I care about systems that stay boring under load.";
+
+const FACTS = [
+  ["Currently", "Full-stack developer, client products"],
+  ["Focus", "Backend systems, real-time, admin tooling"],
+  ["Stack I reach for", "Node.js, Laravel, React, MySQL / Mongo"],
+  ["Languages", "Hindi, English"],
 ];
 
-const FOCUS = [
-  { Icon: FaServer, text: "Backend & APIs" },
-  { Icon: FaCode, text: "Admin Panels" },
-  { Icon: FaMobileAlt, text: "Mobile Apps" },
+const NUMBERS = [
+  ["2.5+", "Years shipping production code"],
+  ["15+", "Projects delivered end-to-end"],
+  ["7", "Client platforms shipped"],
 ];
 
-const reveal = (delay = 0) => ({
-  initial: { opacity: 0, y: 30 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-60px" },
-  transition: { duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] },
-});
+// Each word brightens as the paragraph scrolls through the viewport
+function Word({ children, progress, range }) {
+  const opacity = useTransform(progress, range, [0.15, 1]);
+  return (
+    <span className="relative mr-[0.25em] inline-block">
+      <motion.span style={{ opacity }}>{children}</motion.span>
+    </span>
+  );
+}
+
+function ScrollText({ text }) {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.85", "end 0.45"] });
+  const words = text.split(" ");
+  return (
+    <p ref={ref} className="flex flex-wrap text-[clamp(1.5rem,3vw,2.6rem)] leading-[1.2] tracking-[-0.025em]">
+      {words.map((w, i) => (
+        <Word key={i} progress={scrollYProgress} range={[i / words.length, (i + 1) / words.length]}>
+          {w}
+        </Word>
+      ))}
+    </p>
+  );
+}
 
 export default function About() {
   return (
-    <SectionWrapper id="about">
-      <div className="pointer-events-none absolute right-0 top-20 h-80 w-80 rounded-full bg-orange-500/10 blur-[120px]" />
-
+    <section id="about" className="relative py-24 md:py-36">
       <Container>
-        <SectionHeader
-          eyebrow="About me"
-          title="Turning ideas into"
-          highlight="shipped products"
-          subtitle="I enjoy owning the full journey — database design, APIs, admin tooling and the polished UI on top."
-        />
+        <SectionLabel index="04" label="About" note="Varanasi, Uttar Pradesh — IST (UTC+5:30)" />
 
-        <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-5">
-          {/* Bio card */}
-          <motion.div {...reveal(0)} className="glass-luxury card-glow relative overflow-hidden rounded-3xl p-6 sm:p-8 lg:col-span-3">
-            <div className="pointer-events-none absolute -right-6 -top-6 hidden h-36 w-36 opacity-70 md:block">
-              <Lottie src="/STUDENT.lottie" />
-            </div>
-
-            <div className="mb-5 inline-flex items-center gap-2 text-sm text-gray-400">
-              <FaMapMarkerAlt className="text-orange-400" /> Varanasi, India
-            </div>
-
-            <h3 className="mb-4 max-w-md font-display text-2xl font-bold leading-snug text-white sm:text-3xl">
-              Hi, I'm Prateek — a <span className="text-gradient">Full Stack Developer</span>.
-            </h3>
-
-            <div className="space-y-4 text-base leading-relaxed text-gray-300 sm:text-lg">
-              <p>
-                I build dynamic, high-performance web and mobile applications. Most of my work lives on the
-                backend — designing APIs, real-time systems and microservices — paired with clean React admin
-                panels that teams actually enjoy using.
-              </p>
-              <p className="text-gray-400">
-                I've engineered products like a ride-booking platform with live GPS tracking, an exam-prep platform
-                serving thousands of concurrent students, and automated KYC pipelines for driver onboarding.
-              </p>
-            </div>
-
-            <div className="mt-6 flex flex-wrap gap-2">
-              {FOCUS.map(({ Icon, text }) => (
-                <span key={text} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-sm text-gray-300">
-                  <Icon className="text-orange-400" /> {text}
-                </span>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Terminal */}
-          <motion.div {...reveal(0.1)} className="lg:col-span-2">
-            <TerminalIntro />
-          </motion.div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:col-span-5 lg:grid-cols-4">
-            {STATS.map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                {...reveal(0.1 + i * 0.08)}
-                className="glass-luxury card-glow group rounded-3xl p-5 text-center sm:p-6"
-              >
-                <div className="mb-2 text-2xl sm:text-3xl">{stat.icon}</div>
-                <div className="font-display text-3xl font-bold text-white transition-colors group-hover:text-orange-400 sm:text-4xl">
-                  {stat.number}
-                </div>
-                <div className="mt-1 text-xs font-medium uppercase tracking-wider text-gray-400 sm:text-sm">{stat.label}</div>
-              </motion.div>
-            ))}
+        <div className="grid grid-cols-12 gap-x-6 gap-y-16">
+          <div className="col-span-12 lg:col-span-9 lg:col-start-4">
+            <ScrollText text={STATEMENT} />
           </div>
 
-          {/* Quote */}
-          <motion.blockquote
-            {...reveal(0.2)}
-            className="relative overflow-hidden rounded-3xl border border-orange-500/20 bg-gradient-to-r from-orange-500/10 via-pink-500/5 to-transparent p-6 sm:p-8 lg:col-span-5"
-          >
-            <span className="absolute -top-4 left-4 font-display text-8xl leading-none text-orange-500/20">“</span>
-            <p className="relative text-center text-lg italic leading-relaxed text-gray-200 sm:text-xl">
-              I believe in writing clean, maintainable code that solves real-world problems while
-              providing a seamless user experience.
+          <Reveal className="col-span-12 md:col-span-6 lg:col-span-3">
+            <p className="max-w-xs text-[15px] leading-relaxed text-muted">
+              I like owning a feature from the database table to the button that triggers it. It's the easiest way
+              to make sure nothing gets lost between the layers.
             </p>
-          </motion.blockquote>
+            <a
+              href="/resume.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="link-u mt-6 inline-block text-[15px]"
+            >
+              Download résumé (PDF) ↗
+            </a>
+          </Reveal>
+
+          <dl className="col-span-12 md:col-span-6 lg:col-span-6 lg:col-start-4">
+            {FACTS.map(([k, v], i) => (
+              <Reveal key={k} delay={i * 0.05} className="grid grid-cols-5 gap-4 border-t border-line py-4 text-[15px]">
+                <dt className="col-span-2 text-faint">{k}</dt>
+                <dd className="col-span-3">{v}</dd>
+              </Reveal>
+            ))}
+          </dl>
+        </div>
+
+        <div className="mt-24 grid grid-cols-1 border-t border-line sm:grid-cols-3">
+          {NUMBERS.map(([n, label], i) => (
+            <Reveal
+              key={label}
+              delay={i * 0.08}
+              className={`py-8 sm:px-6 sm:py-10 ${i > 0 ? "border-t border-line sm:border-l sm:border-t-0" : "sm:pl-0"}`}
+            >
+              <div className="text-[clamp(3.5rem,7vw,6.5rem)] leading-none tracking-[-0.05em]">{n}</div>
+              <div className="mt-3 text-sm text-muted">{label}</div>
+            </Reveal>
+          ))}
         </div>
       </Container>
-    </SectionWrapper>
+    </section>
   );
 }
